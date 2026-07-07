@@ -3,30 +3,27 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
+		<title>Thermopolis Fly Shop Shuttle Dispatcher</title>
 	</head>
-	<body>
-		<h1 id="heading"></h1>
-		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
-		<button id="button" type="button">Fetch a random UUID</button>
-		<output id="random" for="button"></output>
-		<script>
-			fetch('/message')
-				.then((resp) => resp.text())
-				.then((text) => {
-					const h1 = document.getElementById('heading');
-					h1.textContent = text;
-				});
+	<body style="font-family: Arial; margin: 40px;">
+		<h1>Thermopolis Fly Shop</h1>
+		<h2>🚐 Shuttle Dispatch System</h2>
 
-			const button = document.getElementById("button");
-			button.addEventListener("click", () => {
-				fetch('/random')
-					.then((resp) => resp.text())
-					.then((text) => {
-						const random = document.getElementById('random');
-						random.textContent = text;
-					});
-			});
-		</script>
+		<p>Version 0.1</p>
+
+		<hr />
+
+		<h3>System Status</h3>
+		<ul>
+			<li>✅ Dashboard Loaded</li>
+			<li>✅ Static Site Running</li>
+			<li>⏳ Worker API Test Coming Next</li>
+			<li>⏳ Database Connection Coming Soon</li>
+		</ul>
+
+		<h3>Today’s Reservations</h3>
+		<p>No reservations yet.</p>
+
+		<p>Welcome, Mike!</p>
 	</body>
 </html>

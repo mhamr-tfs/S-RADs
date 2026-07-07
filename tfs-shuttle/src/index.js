@@ -10,14 +10,32 @@
 
 export default {
 	async fetch(request, env, ctx) {
-		const url = new URL(request.url);
-		switch (url.pathname) {
-			case '/message':
-				return new Response('Hello, World!');
-			case '/random':
-				return new Response(crypto.randomUUID());
-			default:
-				return new Response('Not Found', { status: 404 });
-		}
+		return new Response(`
+			<html>
+				<head>
+					<title>Thermopolis Fly Shop</title>
+				</head>
+				<body style="font-family: Arial; margin: 40px;">
+					<h1>Thermopolis Fly Shop</h1>
+					<h2>🚐 Shuttle Dispatch System</h2>
+					<p>Version 0.1</p>
+
+					<hr>
+
+					<h3>System Status</h3>
+					<ul>
+						<li>✅ Cloudflare Worker Running</li>
+						<li>⏳ Database Connection Coming Soon</li>
+						<li>⏳ Shuttle Dashboard Coming Soon</li>
+					</ul>
+
+					<p>Welcome, Mike!</p>
+				</body>
+			</html>
+		`, {
+			headers: {
+				"Content-Type": "text/html"
+			}
+		});
 	},
 };
