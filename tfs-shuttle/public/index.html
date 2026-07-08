@@ -22,8 +22,55 @@
 		</ul>
 
 		<h3>Today’s Reservations</h3>
-		<p>No reservations yet.</p>
+
+<table border="1" cellpadding="8" cellspacing="0">
+	<thead>
+		<tr>
+			<th>Time</th>
+			<th>Customer</th>
+			<th>Launch</th>
+			<th>Takeout</th>
+			<th>Driver</th>
+			<th>Status</th>
+		</tr>
+	</thead>
+	<tbody id="reservations-table">
+		<tr>
+			<td colspan="6">Loading reservations...</td>
+		</tr>
+	</tbody>
+</table>
 
 		<p>Welcome, Mike!</p>
+		<script>
+	fetch("/api/reservations")
+		.then((response) => response.json())
+		.then((reservations) => {
+			const table = document.getElementById("reservations-table");
+
+			if (reservations.length === 0) {
+				table.innerHTML = '<tr><td colspan="6">No reservations yet.</td></tr>';
+				return;
+			}
+
+			table.innerHTML = reservations.map((reservation) => `
+				<tr>
+					<td>${reservation.shuttle_time}</td>
+					<td>${reservation.customer_name}</td>
+					<td>${reservation.launch_site}</td>
+					<td>${reservation.takeout_site}</td>
+					<td>${reservation.driver}</td>
+					<td>${reservation.status}</td>
+				</tr>
+			`).join("");
+		});
+</script>
 	</body>
+<script>
+	fetch("/api/status")
+		.then((response) => response.json())
+		.then((data) => {
+			console.log("API status:", data);
+		});
+</script>
 </html>
