@@ -1,0 +1,42 @@
+CREATE TABLE IF NOT EXISTS reservations (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+	customer_name TEXT NOT NULL,
+	phone TEXT,
+	email TEXT,
+
+	shuttle_date TEXT NOT NULL,
+	expected_takeout_time TEXT,
+
+	launch_site TEXT NOT NULL,
+	takeout_site TEXT NOT NULL,
+
+	vehicle_year TEXT,
+	vehicle_make TEXT,
+	vehicle_model TEXT,
+	vehicle_color TEXT,
+	license_plate TEXT,
+	license_state TEXT,
+
+	key_location TEXT,
+	key_location_other TEXT,
+	special_instructions TEXT,
+
+	is_two_rivers_guest TEXT DEFAULT 'No',
+	two_rivers_direct_booking TEXT DEFAULT 'No',
+	is_guide TEXT DEFAULT 'No',
+
+	payment_method TEXT,
+	payment_status TEXT DEFAULT 'Pending',
+	payment_reason TEXT,
+	cash_location TEXT,
+
+	driver TEXT DEFAULT 'Unassigned',
+	vehicle_used TEXT DEFAULT 'Unassigned',
+	status TEXT DEFAULT 'Scheduled',
+
+	vehicle_photo_url TEXT,
+
+	requested_at TEXT DEFAULT CURRENT_TIMESTAMP,
+	completed_at TEXT
+);
