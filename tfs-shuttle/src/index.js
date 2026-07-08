@@ -55,12 +55,13 @@ export default {
 					is_two_rivers_guest,
 					two_rivers_direct_booking,
 					is_guide,
+					price,
 					payment_method,
 					payment_status,
 					payment_reason,
 					cash_location
 				)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			`).bind(
 				reservation.customer_name,
 				reservation.phone,
@@ -81,10 +82,12 @@ export default {
 				reservation.is_two_rivers_guest || "No",
 				reservation.two_rivers_direct_booking || "No",
 				reservation.is_guide || "No",
+				Number(reservation.price || 0),
 				reservation.payment_method,
 				paymentStatus,
 				paymentReason,
 				reservation.cash_location
+				
 			).run();
 
 			return Response.json({
@@ -92,7 +95,13 @@ export default {
 				message: "Reservation created",
 			});
 		}
+if (url.pathname === "/api/routes" && request.method === "GET") {
+	const result = await env.DB.prepare(
+		"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
+	).all();
 
+	return Response.json(result.results);
+}
 		return new Response("Not Found", { status: 404 });
 	},
 };

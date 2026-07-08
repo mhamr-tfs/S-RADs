@@ -1,0 +1,97 @@
+		
+			body {
+				font-family: Arial, sans-serif;
+				margin: 0;
+				background: #f4f6f8;
+				color: #222;
+			}
+
+			header {
+				background: #123c69;
+				color: white;
+				padding: 24px 40px;
+			}
+
+			main {
+				max-width: 1100px;
+				margin: 30px auto;
+				padding: 0 20px;
+			}
+
+			.card {
+				background: white;
+				border-radius: 10px;
+				padding: 24px;
+				margin-bottom: 24px;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+			}
+
+			.form-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 14px;
+			}
+
+			input,
+			select,
+			textarea {
+				width: 100%;
+				padding: 10px;
+				box-sizing: border-box;
+			}
+
+			textarea {
+				min-height: 80px;
+			}
+
+			label {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin: 10px 0;
+            }
+
+            input[type="checkbox"] {
+            width: auto;
+            }
+
+			button {
+				background: #123c69;
+				color: white;
+				border: none;
+				border-radius: 6px;
+				padding: 12px 18px;
+				font-size: 16px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background: #0b2a49;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+			}
+
+			th,
+			td {
+				border: 1px solid #ccc;
+				padding: 10px;
+				text-align: left;
+			}
+
+			th {
+				background: #e8eef5;
+			}
+
+			.price-box {
+				font-size: 18px;
+				margin-top: 12px;
+			}
+
+			.note {
+				color: #0a6b32;
+				font-weight: bold;
+			}
+		

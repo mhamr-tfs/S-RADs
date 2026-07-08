@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS reservations (
 	two_rivers_direct_booking TEXT DEFAULT 'No',
 	is_guide TEXT DEFAULT 'No',
 
+	price REAL,
+
 	payment_method TEXT,
 	payment_status TEXT DEFAULT 'Pending',
 	payment_reason TEXT,
@@ -39,4 +41,11 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 	requested_at TEXT DEFAULT CURRENT_TIMESTAMP,
 	completed_at TEXT
+);
+CREATE TABLE IF NOT EXISTS routes (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	launch_site TEXT NOT NULL,
+	takeout_site TEXT NOT NULL,
+	price REAL NOT NULL,
+	active TEXT DEFAULT 'Yes'
 );
