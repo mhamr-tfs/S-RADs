@@ -87,7 +87,6 @@ export default {
 				paymentStatus,
 				paymentReason,
 				reservation.cash_location
-				
 			).run();
 
 			return Response.json({
@@ -95,13 +94,49 @@ export default {
 				message: "Reservation created",
 			});
 		}
-if (url.pathname === "/api/routes" && request.method === "GET") {
-	const result = await env.DB.prepare(
-		"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
-	).all();
 
-	return Response.json(result.results);
-}
+		if (url.pathname === "/api/reservations" && request.method === "PATCH") {
+			const update = await request.json();
+
+			const completedAt =
+				update.status === "Completed" ? new Date().toISOString() : null;
+
+			await env.DB.prepare(`
+				UPDATE reservations
+				SET
+					driver = ?,
+					status = ?,
+					completed_at = ?
+				WHERE id = ?
+			`).bind(
+				update.driver || "Unassigned",
+				update.status || "Scheduled",
+				completedAt,
+				update.id
+			).run();
+
+			return Response.json({
+				success: true,
+				message: "Reservation updated",
+			});
+		}
+
+		if (url.pathname === "/api/routes" && request.method === "GET") {
+			const result = await env.DB.prepare(
+				"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
+			).all();
+
+			return Response.json(result.results);
+		}
+
+		if (url.pathname === "/api/drivers" && request.method === "GET") {
+			const result = await env.DB.prepare(
+				"SELECT * FROM drivers WHERE active = 'Yes' ORDER BY name"
+			).all();
+
+			return Response.json(result.results);
+		}
+
 		return new Response("Not Found", { status: 404 });
 	},
 };
