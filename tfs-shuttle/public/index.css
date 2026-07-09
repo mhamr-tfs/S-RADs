@@ -94,4 +94,74 @@
 				color: #0a6b32;
 				font-weight: bold;
 			}
-		
+		.status-scheduled {
+	background: #fff3cd;
+	color: #856404;
+	font-weight: bold;
+}
+
+.status-progress {
+	background: #cce5ff;
+	color: #004085;
+	font-weight: bold;
+}
+
+.status-completed {
+	background: #d4edda;
+	color: #155724;
+	font-weight: bold;
+}
+
+.status-cancelled {
+	background: #f8d7da;
+	color: #721c24;
+	font-weight: bold;
+}
+.status-select {
+    border: 1px solid #999;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-weight: bold;
+}
+.dispatch-summary {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 16px;
+	margin-bottom: 25px;
+}
+
+.summary-card {
+	text-align: center;
+	padding: 18px;
+	border-radius: 10px;
+	font-weight: bold;
+}
+
+.summary-number {
+	font-size: 34px;
+}
+
+.summary-label {
+	margin-top: 6px;
+	font-size: 15px;
+}
+
+.summary-card.scheduled {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.summary-card.progress {
+	background: #cce5ff;
+	color: #004085;
+}
+
+.summary-card.completed {
+	background: #d4edda;
+	color: #155724;
+}
+
+.summary-card.cancelled {
+	background: #f8d7da;
+	color: #721c24;
+}

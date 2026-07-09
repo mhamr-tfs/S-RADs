@@ -102,23 +102,34 @@ export default {
 		if (url.pathname === "/api/reservations" && request.method === "PATCH") {
 			const update = await request.json();
 
-			const completedAt =
-				update.status === "Completed" ? new Date().toISOString() : null;
+			const now = new Date().toISOString();
+
+let startedAt = null;
+let completedAt = null;
+
+if (update.status === "In Progress") {
+	startedAt = now;
+}
+
+if (update.status === "Completed") {
+	completedAt = now;
+}
 
 			await env.DB.prepare(`
 				UPDATE reservations
-				SET
-					driver = ?,
-					status = ?,
-					completed_at = ?
-				WHERE id = ?
-			`).bind(
-				update.driver || "Unassigned",
-				update.status || "Scheduled",
-				completedAt,
-				update.id
-			).run();
-
+SET
+	driver = ?,
+	status = ?,
+	started_at = COALESCE(started_at, ?),
+	completed_at = ?
+WHERE id = ?
+`).bind(
+	update.driver || "Unassigned",
+	update.status || "Scheduled",
+	startedAt,
+	completedAt,
+	update.id
+).run();
 			return Response.json({
 				success: true,
 				message: "Reservation updated",
