@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS reservations (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-	customer_name TEXT NOT NULL,
+	first_name TEXT NOT NULL,
+	last_name TEXT NOT NULL,
 	phone TEXT,
 	email TEXT,
 
@@ -16,6 +17,7 @@ CREATE TABLE IF NOT EXISTS reservations (
 	vehicle_model TEXT,
 	vehicle_color TEXT,
 	license_plate TEXT,
+	license_county TEXT,
 	license_state TEXT,
 
 	key_location TEXT,

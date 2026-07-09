@@ -59,7 +59,16 @@ let routes = [];
 
 			const guestCheckbox = document.querySelector('[name="is_two_rivers_guest"]');
 			const directBookingCheckbox = document.querySelector('[name="two_rivers_direct_booking"]');
+document.querySelector('[name="license_state"]').addEventListener("change", function () {
+	const countyField = document.getElementById("license_county");
 
+	if (this.value === "WY") {
+		countyField.style.display = "block";
+	} else {
+		countyField.style.display = "none";
+		countyField.value = "";
+	}
+});
 			guestCheckbox.addEventListener("change", function () {
 				if (guestCheckbox.checked) {
 					directBookingCheckbox.disabled = false;
@@ -87,9 +96,13 @@ let routes = [];
 						table.innerHTML = reservations.map((reservation) => `
 							<tr>
 								<td>${reservation.expected_takeout_time || ""}</td>
-								<td>${reservation.customer_name || ""}</td>
+								<td>${reservation.first_name || ""} ${reservation.last_name || ""}</td>
 								<td>${reservation.launch_site || ""} → ${reservation.takeout_site || ""}</td>
-								<td>${reservation.vehicle_color || ""} ${reservation.vehicle_make || ""} ${reservation.vehicle_model || ""}</td>
+								<td>
+	${reservation.vehicle_color || ""} ${reservation.vehicle_make || ""} ${reservation.vehicle_model || ""}
+	<br>
+	${reservation.license_state || ""} ${reservation.license_county || ""}-${reservation.license_plate || ""}
+</td>
 								<td>$${Number(reservation.price || 0).toFixed(2)}</td>
 								<td>${reservation.payment_method || ""} / ${reservation.payment_status || ""}</td>
 								<td>${reservation.status || ""}</td>

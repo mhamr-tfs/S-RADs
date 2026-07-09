@@ -36,7 +36,8 @@ export default {
 
 			await env.DB.prepare(`
 				INSERT INTO reservations (
-					customer_name,
+					first_name,
+					last_name,
 					phone,
 					email,
 					shuttle_date,
@@ -49,6 +50,7 @@ export default {
 					vehicle_color,
 					license_plate,
 					license_state,
+					license_county,
 					key_location,
 					key_location_other,
 					special_instructions,
@@ -61,9 +63,10 @@ export default {
 					payment_reason,
 					cash_location
 				)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 			`).bind(
-				reservation.customer_name,
+				reservation.first_name,
+				reservation.last_name,
 				reservation.phone,
 				reservation.email,
 				reservation.shuttle_date,
@@ -76,6 +79,7 @@ export default {
 				reservation.vehicle_color,
 				reservation.license_plate,
 				reservation.license_state,
+				reservation.license_county,
 				reservation.key_location,
 				reservation.key_location_other,
 				reservation.special_instructions,
