@@ -72,6 +72,39 @@ function loadDashboard() {
 		fetch("/api/drivers").then((response) => response.json()),
 	]).then(([reservations, driverList]) => {
 		drivers = driverList;
+		const driverContainer = document.getElementById("driver-status");
+
+driverContainer.innerHTML = "";
+
+drivers.forEach((driver) => {
+
+	const activeTrip = reservations.find((reservation) =>
+		reservation.driver === driver.name &&
+		reservation.status === "In Progress"
+	);
+
+	if (activeTrip) {
+
+		driverContainer.innerHTML += `
+			<div class="driver-card driver-busy">
+				🔵 ${driver.name}<br>
+				On Shuttle<br>
+				${activeTrip.launch_site} → ${activeTrip.takeout_site}
+			</div>
+		`;
+
+	} else {
+
+		driverContainer.innerHTML += `
+			<div class="driver-card driver-available">
+				🟢 ${driver.name}<br>
+				Available
+			</div>
+		`;
+
+	}
+
+});
         const scheduled = reservations.filter(r => r.status === "Scheduled").length;
 const progress = reservations.filter(r => r.status === "In Progress").length;
 const completed = reservations.filter(r => r.status === "Completed").length;

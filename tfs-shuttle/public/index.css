@@ -165,3 +165,45 @@
 	background: #f8d7da;
 	color: #721c24;
 }
+#driver-status {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 12px;
+}
+
+.driver-card {
+	padding: 14px;
+	border-radius: 8px;
+	font-weight: bold;
+	border: 1px solid #ccc;
+}
+
+.driver-available {
+	background: #d4edda;
+	color: #155724;
+}
+
+.driver-busy {
+	background: #cce5ff;
+	color: #004085;
+}
+.field-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 0;
+	font-weight: bold;
+}
+
+.field-group span {
+	display: block;
+	min-height: 48px;
+	line-height: 1.3;
+	font-weight: bold;
+}
+.help-text {
+	margin-top: 10px;
+	color: #555;
+	font-size: 14px;
+	line-height: 1.4;
+}

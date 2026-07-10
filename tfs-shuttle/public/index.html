@@ -3,43 +3,116 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Thermopolis Fly Shop Shuttle Dispatcher</title>
 
-<link rel="stylesheet" href="/index.css">
+		<title>Thermopolis Fly Shop Shuttle Reservation</title>
+
+		<link rel="stylesheet" href="/index.css" />
 	</head>
 
 	<body>
 		<header>
 			<h1>Thermopolis Fly Shop</h1>
-			<h2>🚐 Shuttle Dispatch System</h2>
-			<p>Version 0.3 alpha</p>
+			<h2>🚐 Shuttle Reservation</h2>
+			<p>Version 0.4.0-alpha</p>
 		</header>
 
 		<main>
 			<section class="card">
-				<h3>Create Shuttle Request</h3>
+				<h2>Thermopolis Fly Shop Shuttle Reservation</h2>
+
+				<p class="intro">
+					Thank you for choosing Thermopolis Fly Shop for your shuttle
+					service. Please complete the form below to reserve your shuttle.
+					The form takes about two minutes to complete. If you have questions
+					or need assistance selecting the correct shuttle route, please call
+					us at <strong>(307) 864-3499</strong>. We're happy to help!
+				</p>
 
 				<form id="reservation-form">
-					<h4>Customer Information</h4>
+					<h4>Your Contact Information</h4>
+
 					<div class="form-grid">
-						<input name="first_name" placeholder="First Name" required />
-						<input name="last_name" placeholder="Last Name " required />
-						<input name="phone" placeholder="Phone" required />
-						<input name="email" placeholder="Email" required />
+						<label class="field-group">
+							<span>First Name</span>
+							<input
+								name="first_name"
+								type="text"
+								autocomplete="given-name"
+								required
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Last Name</span>
+							<input
+								name="last_name"
+								type="text"
+								autocomplete="family-name"
+								required
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Phone Number</span>
+							<input
+								name="phone"
+								type="tel"
+								autocomplete="tel"
+								placeholder="307-555-1234"
+								required
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Email Address</span>
+							<input
+								name="email"
+								type="email"
+								autocomplete="email"
+								placeholder="name@example.com"
+								required
+							/>
+						</label>
 					</div>
 
-					<h4>Shuttle Information</h4>
+					<h4>Trip Information</h4>
+
 					<div class="form-grid">
-						<input name="shuttle_date" type="date" required />
-						<input name="expected_takeout_time" type="time" />
-						<select id="route-select" required>
-							<option value="">Select Shuttle Route</option>
-						</select>
+						<label class="field-group">
+							<span>Date of Your Float</span>
+							<input name="shuttle_date" type="date" required />
+						</label>
+
+						<label class="field-group">
+							<span>Expected Finish Time</span>
+							<input
+								name="expected_takeout_time"
+								type="time"
+								required
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Select Your Float Route</span>
+							<select id="route-select" required>
+								<option value="">Choose Your Route</option>
+							</select>
+						</label>
 					</div>
+
+					<p class="help-text">
+						Not sure which route you're floating? Select the closest option
+						or give us a call—we'll be happy to help.
+					</p>
 
 					<div class="price-box">
-						<strong>Route Price:</strong> <span id="route-price">$0.00</span><br />
-						<strong>Amount Due:</strong> <span id="amount-due">$0.00</span>
+						<strong>Route Price:</strong>
+						<span id="route-price">$0.00</span>
+						<br />
+
+						<strong>Amount Due:</strong>
+						<span id="amount-due">$0.00</span>
+
 						<p id="payment-note" class="note"></p>
 					</div>
 
@@ -47,95 +120,202 @@
 					<input type="hidden" name="takeout_site" id="takeout_site" />
 					<input type="hidden" name="price" id="price" />
 
-					<h4>Vehicle Information</h4>
-					<div class="form-grid">
-						<input name="vehicle_year" placeholder="Year" />
-						<input name="vehicle_make" placeholder="Make" />
-						<input name="vehicle_model" placeholder="Model" />
-						<input name="vehicle_color" placeholder="Color" />
-						<input name="license_plate" placeholder="License Plate" />
+					<h4>Your Vehicle</h4>
 
-						<select name="license_state">
-							<option value="">License State</option>
-							<option value="WY">Wyoming</option>
-							<option value="CO">Colorado</option>
-							<option value="MT">Montana</option>
-							<option value="NE">Nebraska</option>
-							<option value="SD">South Dakota</option>
-							<option value="UT">Utah</option>
-							<option value="ID">Idaho</option>
-							<option value="TX">Texas</option>
-						</select>
-						<select name="license_county" id="license_county" style="display: none;">
-							<option value="">WY County Number</option>
-							<option value="1">1 - Natrona</option>
-	<option value="2">2 - Laramie</option>
-	<option value="3">3 - Sheridan</option>
-	<option value="4">4 - Sweetwater</option>
-	<option value="5">5 - Albany</option>
-	<option value="6">6 - Carbon</option>
-	<option value="7">7 - Goshen</option>
-	<option value="8">8 - Platte</option>
-	<option value="9">9 - Big Horn</option>
-	<option value="10">10 - Fremont</option>
-	<option value="11">11 - Park</option>
-	<option value="12">12 - Lincoln</option>
-	<option value="13">13 - Converse</option>
-	<option value="14">14 - Niobrara</option>
-	<option value="15">15 - Hot Springs</option>
-	<option value="16">16 - Johnson</option>
-	<option value="17">17 - Campbell</option>
-	<option value="18">18 - Crook</option>
-	<option value="19">19 - Uinta</option>
-	<option value="20">20 - Washakie</option>
-	<option value="21">21 - Weston</option>
-	<option value="22">22 - Teton</option>
-	<option value="23">23 - Sublette</option>
-</select>
+					<p class="help-text">
+						We'll use this information to identify your vehicle at the
+						launch site.
+					</p>
+
+					<div class="form-grid">
+						<label class="field-group">
+							<span>Vehicle Year</span>
+							<input
+								name="vehicle_year"
+								type="text"
+								inputmode="numeric"
+								placeholder="Example: 2022"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Vehicle Make</span>
+							<input
+								name="vehicle_make"
+								type="text"
+								placeholder="Example: Toyota"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Vehicle Model</span>
+							<input
+								name="vehicle_model"
+								type="text"
+								placeholder="Example: Tacoma"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Vehicle Color</span>
+							<input
+								name="vehicle_color"
+								type="text"
+								placeholder="Example: Silver"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>License Plate</span>
+							<input
+								name="license_plate"
+								type="text"
+								placeholder="Plate number"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>License State</span>
+
+							<select name="license_state">
+								<option value="">Select State</option>
+								<option value="WY">Wyoming</option>
+								<option value="CO">Colorado</option>
+								<option value="MT">Montana</option>
+								<option value="NE">Nebraska</option>
+								<option value="SD">South Dakota</option>
+								<option value="UT">Utah</option>
+								<option value="ID">Idaho</option>
+								<option value="TX">Texas</option>
+							</select>
+						</label>
+
+						<label
+							class="field-group"
+							id="license-county-group"
+							style="display: none;"
+						>
+							<span>Wyoming County Number</span>
+
+							<select name="license_county" id="license_county">
+								<option value="">Select County</option>
+								<option value="1">1 - Natrona</option>
+								<option value="2">2 - Laramie</option>
+								<option value="3">3 - Sheridan</option>
+								<option value="4">4 - Sweetwater</option>
+								<option value="5">5 - Albany</option>
+								<option value="6">6 - Carbon</option>
+								<option value="7">7 - Goshen</option>
+								<option value="8">8 - Platte</option>
+								<option value="9">9 - Big Horn</option>
+								<option value="10">10 - Fremont</option>
+								<option value="11">11 - Park</option>
+								<option value="12">12 - Lincoln</option>
+								<option value="13">13 - Converse</option>
+								<option value="14">14 - Niobrara</option>
+								<option value="15">15 - Hot Springs</option>
+								<option value="16">16 - Johnson</option>
+								<option value="17">17 - Campbell</option>
+								<option value="18">18 - Crook</option>
+								<option value="19">19 - Uinta</option>
+								<option value="20">20 - Washakie</option>
+								<option value="21">21 - Weston</option>
+								<option value="22">22 - Teton</option>
+								<option value="23">23 - Sublette</option>
+							</select>
+						</label>
 					</div>
 
-					<h4>Keys / Notes</h4>
-					<div class="form-grid">
-						<select name="key_location">
-							<option value="">Key Location</option>
-							<option value="Gas cap">Gas cap</option>
-							<option value="Lockbox">Lockbox</option>
-							<option value="Left with shop">Left with shop</option>
-							<option value="Other">Other</option>
-						</select>
+					<h4>Keys and Special Instructions</h4>
 
-						<input name="key_location_other" placeholder="Other key location" />
-						<textarea name="special_instructions" placeholder="Special Instructions"></textarea>
+					<div class="form-grid">
+						<label class="field-group">
+							<span>Where will we find your keys?</span>
+
+							<select name="key_location">
+								<option value="">Select Key Location</option>
+								<option value="Gas cap">Gas cap</option>
+								<option value="Lockbox">Lockbox</option>
+								<option value="Left with shop">
+									Left with the fly shop
+								</option>
+								<option value="Other">Other</option>
+							</select>
+						</label>
+
+						<label class="field-group">
+							<span>If you selected Other, please explain</span>
+
+							<input
+								name="key_location_other"
+								type="text"
+								placeholder="Describe where we can find the keys"
+							/>
+						</label>
+
+						<label class="field-group">
+							<span>Anything else we should know?</span>
+
+							<textarea
+								name="special_instructions"
+								placeholder="Trailer details, parking instructions, vehicle details, or other helpful information"
+							></textarea>
+						</label>
 					</div>
 
 					<h4>Two Rivers Inn</h4>
+
 					<label>
-						<input type="checkbox" name="is_two_rivers_guest" value="Yes" />
+						<input
+							type="checkbox"
+							name="is_two_rivers_guest"
+							value="Yes"
+						/>
 						Guest of Two Rivers Inn
 					</label>
 
 					<label>
-						<input type="checkbox" name="two_rivers_direct_booking" value="Yes" disabled />
+						<input
+							type="checkbox"
+							name="two_rivers_direct_booking"
+							value="Yes"
+							disabled
+						/>
 						Booked directly with Two Rivers Inn
 					</label>
 
 					<h4>Payment</h4>
-					<div class="form-grid">
-						<select name="payment_method">
-							<option value="Cash">Cash</option>
-							<option value="Square">Square</option>
-						</select>
 
-						<input name="cash_location" placeholder="Cash location / notes" />
+					<div class="form-grid">
+						<label class="field-group">
+							<span>How will you pay?</span>
+
+							<select name="payment_method">
+								<option value="Cash">Cash</option>
+								<option value="Square">Credit or debit card with Square</option>
+							</select>
+						</label>
+
+						<label class="field-group">
+							<span>If paying with cash, where will it be left?</span>
+
+							<input
+								name="cash_location"
+								type="text"
+								placeholder="Example: At the shop or inside the vehicle"
+							/>
+						</label>
 					</div>
 
 					<br />
-					<button type="submit">Create Reservation</button>
+
+					<button type="submit">Submit Shuttle Request</button>
 				</form>
 
 				<p id="form-message"></p>
 			</section>
 		</main>
+
 		<script src="/app.js"></script>
-			</body>
+	</body>
 </html>

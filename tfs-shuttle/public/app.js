@@ -7,7 +7,7 @@ let routes = [];
 						routes = routeList;
 
 						const routeSelect = document.getElementById("route-select");
-						routeSelect.innerHTML = '<option value="">Select Shuttle Route</option>';
+						routeSelect.innerHTML = '<option value="">Choose Your Route</option>';
 
 						routes.forEach((route) => {
 							const option = document.createElement("option");
@@ -59,16 +59,7 @@ let routes = [];
 
 			const guestCheckbox = document.querySelector('[name="is_two_rivers_guest"]');
 			const directBookingCheckbox = document.querySelector('[name="two_rivers_direct_booking"]');
-document.querySelector('[name="license_state"]').addEventListener("change", function () {
-	const countyField = document.getElementById("license_county");
 
-	if (this.value === "WY") {
-		countyField.style.display = "block";
-	} else {
-		countyField.style.display = "none";
-		countyField.value = "";
-	}
-});
 			guestCheckbox.addEventListener("change", function () {
 				if (guestCheckbox.checked) {
 					directBookingCheckbox.disabled = false;
@@ -81,36 +72,6 @@ document.querySelector('[name="license_state"]').addEventListener("change", func
 			});
 
 			directBookingCheckbox.addEventListener("change", updatePaymentCalculator);
-
-			function loadReservations() {
-				fetch("/api/reservations")
-					.then((response) => response.json())
-					.then((reservations) => {
-						const table = document.getElementById("reservations-table");
-
-						if (reservations.length === 0) {
-							table.innerHTML = '<tr><td colspan="7">No reservations yet.</td></tr>';
-							return;
-						}
-
-						table.innerHTML = reservations.map((reservation) => `
-							<tr>
-								<td>${reservation.expected_takeout_time || ""}</td>
-								<td>${reservation.first_name || ""} ${reservation.last_name || ""}</td>
-								<td>${reservation.launch_site || ""} → ${reservation.takeout_site || ""}</td>
-								<td>
-	${reservation.vehicle_color || ""} ${reservation.vehicle_make || ""} ${reservation.vehicle_model || ""}
-	<br>
-	${reservation.license_state || ""} ${reservation.license_county || ""}-${reservation.license_plate || ""}
-</td>
-								<td>$${Number(reservation.price || 0).toFixed(2)}</td>
-								<td>${reservation.payment_method || ""} / ${reservation.payment_status || ""}</td>
-								<td>${reservation.status || ""}</td>
-							</tr>
-						`).join("");
-					});
-			}
-
 			document.getElementById("reservation-form").addEventListener("submit", function (event) {
 				event.preventDefault();
 
@@ -133,6 +94,7 @@ document.querySelector('[name="license_state"]').addEventListener("change", func
 					.then((data) => {
 						document.getElementById("form-message").textContent = data.message;
 						form.reset();
+                        document.getElementById("license-county-group").style.display = "none";
 
 						directBookingCheckbox.checked = false;
 						directBookingCheckbox.disabled = true;
@@ -143,10 +105,20 @@ document.querySelector('[name="license_state"]').addEventListener("change", func
 						document.getElementById("launch_site").value = "";
 						document.getElementById("takeout_site").value = "";
 						document.getElementById("price").value = "";
-
-						loadReservations();
 					});
 			});
+            document
+	.querySelector('[name="license_state"]')
+	.addEventListener("change", function () {
+		const countyGroup = document.getElementById("license-county-group");
+		const countyField = document.getElementById("license_county");
+
+		if (this.value === "WY") {
+			countyGroup.style.display = "flex";
+		} else {
+			countyGroup.style.display = "none";
+			countyField.value = "";
+		}
+	});
 
 			loadRoutes();
-			loadReservations();
