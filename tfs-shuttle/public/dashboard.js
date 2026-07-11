@@ -173,10 +173,11 @@ function updateReservation(id, driver, status, paymentStatus) {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			id,
-		driver,
-		status,
-		payment_status: paymentStatus,
+	id,
+	driver,
+	status,
+	payment_status: paymentStatus,
+}),
 }),
 	})
 		.then((response) => {
@@ -344,7 +345,6 @@ function renderReservations() {
 			`
 		)
 		.join("");
-
 		attachDashboardListeners();
 }
 
