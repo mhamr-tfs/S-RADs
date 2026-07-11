@@ -6,7 +6,7 @@ export default {
 			return Response.json({
 				shop: "Thermopolis Fly Shop",
 				app: "Shuttle Dispatch System",
-				version: "0.1",
+				version: "0.5.0-alpha",
 				status: "Online",
 				database: env.DB ? "Connected" : "Not connected",
 			});
@@ -99,66 +99,83 @@ export default {
 			});
 		}
 
-		if (url.pathname === "/api/reservations" && request.method === "PATCH") {
-	const update = await request.json();
-	const now = new Date().toISOString();
+				if (url.pathname === "/api/reservations" && request.method === "PATCH") {
+			const update = await request.json();
+			const now = new Date().toISOString();
 
-	const driver = update.driver ?? null;
-	const status = update.status ?? null;
-	const paymentStatus = update.payment_status ?? null;
+			const driver = update.driver ?? null;
+			const status = update.status ?? null;
+			const paymentStatus = update.payment_status ?? null;
 
-	const startedAt = status === "In Progress" ? now : null;
-	const completedAt = status === "Completed" ? now : null;
-	const paidAt = paymentStatus === "Paid" ? now : null;
+			const startedAt = status === "In Progress" ? now : null;
+			const completedAt = status === "Completed" ? now : null;
+			const paidAt = paymentStatus === "Paid" ? now : null;
 
-	await env.DB.prepare(`
-		UPDATE reservations
-		SET
-			driver = COALESCE(?, driver),
-			status = COALESCE(?, status),
+			await env.DB.prepare(`
+				UPDATE reservations
+				SET
+					driver = COALESCE(?, driver),
+					status = COALESCE(?, status),
 
-			started_at =
-				CASE
-					WHEN ? = 'In Progress'
-					THEN COALESCE(started_at, ?)
-					ELSE started_at
-				END,
+					started_at =
+						CASE
+							WHEN ? = 'In Progress'
+							THEN COALESCE(started_at, ?)
+							ELSE started_at
+						END,
 
-			completed_at =
-				CASE
-					WHEN ? = 'Completed'
-					THEN COALESCE(completed_at, ?)
-					ELSE completed_at
-				END,
+					completed_at =
+						CASE
+							WHEN ? = 'Completed'
+							THEN COALESCE(completed_at, ?)
+							ELSE completed_at
+						END,
 
-			payment_status = COALESCE(?, payment_status),
+					payment_status = COALESCE(?, payment_status),
 
-			paid_at =
-				CASE
-					WHEN ? = 'Paid'
-					THEN COALESCE(paid_at, ?)
-					ELSE paid_at
-				END
+					paid_at =
+						CASE
+							WHEN ? = 'Paid'
+							THEN COALESCE(paid_at, ?)
+							ELSE paid_at
+						END
 
-		WHERE id = ?
-	`).bind(
-		driver,
-		status,
-		status,
-		startedAt,
-		status,
-		completedAt,
-		paymentStatus,
-		paymentStatus,
-		paidAt,
-		update.id
-	).run();
+				WHERE id = ?
+			`).bind(
+				driver,
+				status,
+				status,
+				startedAt,
+				status,
+				completedAt,
+				paymentStatus,
+				paymentStatus,
+				paidAt,
+				update.id
+			).run();
 
-	return Response.json({
-		success: true,
-		message: "Reservation updated",
-	});
-}
+			return Response.json({
+				success: true,
+				message: "Reservation updated",
+			});
+		}
+
+		if (url.pathname === "/api/routes" && request.method === "GET") {
+			const result = await env.DB.prepare(
+				"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
+			).all();
+
+			return Response.json(result.results);
+		}
+
+		if (url.pathname === "/api/drivers" && request.method === "GET") {
+			const result = await env.DB.prepare(
+				"SELECT * FROM drivers WHERE active = 'Yes' ORDER BY name"
+			).all();
+
+			return Response.json(result.results);
+		}
+
 		return new Response("Not Found", { status: 404 });
 	},
 };
