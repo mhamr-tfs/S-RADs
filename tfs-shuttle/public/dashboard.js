@@ -1,4 +1,53 @@
 let drivers = [];
+let allReservations = [];
+
+function getFilteredReservations() {
+	const searchValue = document
+		.getElementById("reservation-search")
+		.value
+		.trim()
+		.toLowerCase();
+
+	const statusValue =
+		document.getElementById("status-filter").value;
+
+	const paymentValue =
+		document.getElementById("payment-filter").value;
+
+	return allReservations.filter((reservation) => {
+		const searchableText = [
+			reservation.first_name,
+			reservation.last_name,
+			reservation.phone,
+			reservation.email,
+			reservation.launch_site,
+			reservation.takeout_site,
+			reservation.vehicle_year,
+			reservation.vehicle_make,
+			reservation.vehicle_model,
+			reservation.vehicle_color,
+			reservation.license_plate,
+			reservation.license_county,
+			reservation.license_state,
+			reservation.driver,
+		]
+			.filter(Boolean)
+			.join(" ")
+			.toLowerCase();
+
+		const matchesSearch =
+			!searchValue || searchableText.includes(searchValue);
+
+		const matchesStatus =
+			!statusValue || reservation.status === statusValue;
+
+		const matchesPayment =
+			!paymentValue ||
+			reservation.payment_status === paymentValue;
+
+		return matchesSearch && matchesStatus && matchesPayment;
+	});
+}
 
 function driverOptions(selectedDriver) {
 	let options = '<option value="Unassigned">Unassigned</option>';
@@ -124,10 +173,10 @@ function updateReservation(id, driver, status, paymentStatus) {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-	id,
-	driver,
-	status,
-	payment_status: paymentStatus,
+			id,
+		driver,
+		status,
+		payment_status: paymentStatus,
 }),
 	})
 		.then((response) => {
@@ -153,182 +202,232 @@ function loadDashboard() {
 		fetch("/api/drivers").then((response) => response.json()),
 	]).then(([reservations, driverList]) => {
 		drivers = driverList;
+		allReservations = reservations;
+
 		const driverContainer = document.getElementById("driver-status");
 
-driverContainer.innerHTML = "";
+		driverContainer.innerHTML = "";
 
-drivers.forEach((driver) => {
+		drivers.forEach((driver) => {
+			const activeTrip = reservations.find(
+				(reservation) =>
+					reservation.driver === driver.name &&
+					reservation.status === "In Progress"
+			);
 
-	const activeTrip = reservations.find((reservation) =>
-		reservation.driver === driver.name &&
-		reservation.status === "In Progress"
-	);
+			if (activeTrip) {
+				driverContainer.innerHTML += `
+					<div class="driver-card driver-busy">
+						🔵 ${driver.name}<br>
+						On Shuttle<br>
+						${activeTrip.launch_site} → ${activeTrip.takeout_site}
+					</div>
+				`;
+			} else {
+				driverContainer.innerHTML += `
+					<div class="driver-card driver-available">
+						🟢 ${driver.name}<br>
+						Available
+					</div>
+				`;
+			}
+		});
 
-	if (activeTrip) {
+		const scheduled = reservations.filter(
+			(reservation) => reservation.status === "Scheduled"
+		).length;
 
-		driverContainer.innerHTML += `
-			<div class="driver-card driver-busy">
-				🔵 ${driver.name}<br>
-				On Shuttle<br>
-				${activeTrip.launch_site} → ${activeTrip.takeout_site}
-			</div>
-		`;
+		const progress = reservations.filter(
+			(reservation) => reservation.status === "In Progress"
+		).length;
 
-	} else {
+		const completed = reservations.filter(
+			(reservation) => reservation.status === "Completed"
+		).length;
 
-		driverContainer.innerHTML += `
-			<div class="driver-card driver-available">
-				🟢 ${driver.name}<br>
-				Available
-			</div>
-		`;
+		const cancelled = reservations.filter(
+			(reservation) => reservation.status === "Cancelled"
+		).length;
 
-	}
+		document.getElementById("scheduled-count").textContent = scheduled;
+		document.getElementById("progress-count").textContent = progress;
+		document.getElementById("completed-count").textContent = completed;
+		document.getElementById("cancelled-count").textContent = cancelled;
 
-});
-        const scheduled = reservations.filter(r => r.status === "Scheduled").length;
-const progress = reservations.filter(r => r.status === "In Progress").length;
-const completed = reservations.filter(r => r.status === "Completed").length;
-const cancelled = reservations.filter(r => r.status === "Cancelled").length;
-
-document.getElementById("scheduled-count").textContent = scheduled;
-document.getElementById("progress-count").textContent = progress;
-document.getElementById("completed-count").textContent = completed;
-document.getElementById("cancelled-count").textContent = cancelled;
-
-		const table = document.getElementById("reservations-table");
-
-		if (reservations.length === 0) {
-			table.innerHTML = '<tr><td colspan="8">No reservations yet.</td></tr>';
-			return;
-		}
-
-		table.innerHTML = reservations
-	.map(
-		(reservation) => `
-			<tr>
-				<td>${reservation.expected_takeout_time || ""}</td>
-
-				<td>
-					${reservation.first_name || ""}
-					${reservation.last_name || ""}
-				</td>
-
-				<td>
-					${reservation.launch_site || ""}
-					→
-					${reservation.takeout_site || ""}
-				</td>
-
-				<td>
-					${reservation.vehicle_color || ""}
-					${reservation.vehicle_year || ""}
-					${reservation.vehicle_make || ""}
-					${reservation.vehicle_model || ""}
-					<br>
-					${reservation.license_state || ""}
-					${
-						reservation.license_county
-							? `${reservation.license_county}-`
-							: ""
-					}${reservation.license_plate || ""}
-				</td>
-
-				<td>
-					<select
-						class="driver-select"
-						data-id="${reservation.id}"
-					>
-						${driverOptions(reservation.driver)}
-					</select>
-				</td>
-
-				<td>
-					<select
-						class="status-select ${getStatusClass(reservation.status)}"
-						data-id="${reservation.id}"
-					>
-						${statusOptions(reservation.status)}
-					</select>
-				</td>
-
-				<td class="elapsed-time ${getElapsedClass(reservation.status)}">
-					${formatElapsedTime(
-						reservation.started_at,
-						reservation.completed_at,
-						reservation.status
-					)}
-				</td>
-
-				<td>
-	<div class="payment-method">
-		${reservation.payment_method || "Not selected"}
-	</div>
-
-	<select
-		class="payment-select ${getPaymentClass(reservation.payment_status)}"
-		data-id="${reservation.id}"
-	>
-		${paymentOptions(reservation.payment_status)}
-	</select>
-</td>
-			</tr>
-		`
-	)
-	.join("");
-
-		document.querySelectorAll(".status-select").forEach((select) => {
-	select.addEventListener("change", function () {
-		const id = Number(this.dataset.id);
-		const row = this.closest("tr");
-
-		const driver = row.querySelector(".driver-select").value;
-		const paymentStatus = row.querySelector(".payment-select").value;
-
-		this.className =
-			"status-select " + getStatusClass(this.value);
-
-		updateReservation(
-			id,
-			driver,
-			this.value,
-			paymentStatus
-		);
-	});
-});
-
-		document.querySelectorAll(".status-select").forEach((select) => {
-	select.addEventListener("change", function () {
-		const id = Number(this.dataset.id);
-		const row = this.closest("tr");
-		const driver = row.querySelector(".driver-select").value;
-
-		this.className = "status-select " + getStatusClass(this.value);
-
-		updateReservation(id, driver, this.value);
-	});
-});
-document.querySelectorAll(".payment-select").forEach((select) => {
-	select.addEventListener("change", function () {
-		const id = Number(this.dataset.id);
-		const row = this.closest("tr");
-
-		const driver = row.querySelector(".driver-select").value;
-		const status = row.querySelector(".status-select").value;
-
-		this.className =
-			"payment-select " + getPaymentClass(this.value);
-
-		updateReservation(
-			id,
-			driver,
-			status,
-			this.value
-		);
-	});
-});
+		renderReservations();
 	});
 }
+function renderReservations() {
+	const reservations = getFilteredReservations();
+	const table = document.getElementById("reservations-table");
+
+	if (reservations.length === 0) {
+		table.innerHTML =
+			'<tr><td colspan="8">No matching reservations.</td></tr>';
+		return;
+	}
+
+	table.innerHTML = reservations
+		.map(
+			(reservation) => `
+				<tr>
+					<td>${reservation.expected_takeout_time || ""}</td>
+
+					<td>
+						${reservation.first_name || ""}
+						${reservation.last_name || ""}
+					</td>
+
+					<td>
+						${reservation.launch_site || ""}
+						→
+						${reservation.takeout_site || ""}
+					</td>
+
+					<td>
+						${reservation.vehicle_color || ""}
+						${reservation.vehicle_year || ""}
+						${reservation.vehicle_make || ""}
+						${reservation.vehicle_model || ""}
+						<br>
+
+						${reservation.license_state || ""}
+						${
+							reservation.license_county
+								? `${reservation.license_county}-`
+								: ""
+						}
+						${reservation.license_plate || ""}
+					</td>
+
+					<td>
+						<select
+							class="driver-select"
+							data-id="${reservation.id}"
+						>
+							${driverOptions(reservation.driver)}
+						</select>
+					</td>
+
+					<td>
+						<select
+							class="status-select ${getStatusClass(reservation.status)}"
+							data-id="${reservation.id}"
+						>
+							${statusOptions(reservation.status)}
+						</select>
+					</td>
+
+					<td class="elapsed-time ${getElapsedClass(reservation.status)}">
+						${formatElapsedTime(
+							reservation.started_at,
+							reservation.completed_at,
+							reservation.status
+						)}
+					</td>
+
+					<td>
+						<div class="payment-method">
+							${reservation.payment_method || "Not selected"}
+						</div>
+
+						<select
+							class="payment-select ${getPaymentClass(
+								reservation.payment_status
+							)}"
+							data-id="${reservation.id}"
+						>
+							${paymentOptions(reservation.payment_status)}
+						</select>
+					</td>
+				</tr>
+			`
+		)
+		.join("");
+
+		attachDashboardListeners();
+}
+
+function attachDashboardListeners() {
+	document.querySelectorAll(".driver-select").forEach((select) => {
+		select.addEventListener("change", function () {
+			const id = Number(this.dataset.id);
+			const row = this.closest("tr");
+
+			const status = row.querySelector(".status-select").value;
+			const paymentStatus = row.querySelector(".payment-select").value;
+
+			updateReservation(
+				id,
+				this.value,
+				status,
+				paymentStatus
+			);
+		});
+	});
+
+	document.querySelectorAll(".status-select").forEach((select) => {
+		select.addEventListener("change", function () {
+			const id = Number(this.dataset.id);
+			const row = this.closest("tr");
+
+			const driver = row.querySelector(".driver-select").value;
+			const paymentStatus = row.querySelector(".payment-select").value;
+
+			this.className =
+				"status-select " + getStatusClass(this.value);
+
+			updateReservation(
+				id,
+				driver,
+				this.value,
+				paymentStatus
+			);
+		});
+	});
+
+	document.querySelectorAll(".payment-select").forEach((select) => {
+		select.addEventListener("change", function () {
+			const id = Number(this.dataset.id);
+			const row = this.closest("tr");
+
+			const driver = row.querySelector(".driver-select").value;
+			const status = row.querySelector(".status-select").value;
+
+			this.className =
+				"payment-select " + getPaymentClass(this.value);
+
+			updateReservation(
+				id,
+				driver,
+				status,
+				this.value
+			);
+		});
+	});
+}
+
+document
+	.getElementById("reservation-search")
+	.addEventListener("input", renderReservations);
+
+document
+	.getElementById("status-filter")
+	.addEventListener("change", renderReservations);
+
+document
+	.getElementById("payment-filter")
+	.addEventListener("change", renderReservations);
+
+document
+	.getElementById("clear-filters")
+	.addEventListener("click", function () {
+		document.getElementById("reservation-search").value = "";
+		document.getElementById("status-filter").value = "";
+		document.getElementById("payment-filter").value = "";
+
+		renderReservations();
+	});
 
 loadDashboard();
 

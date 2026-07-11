@@ -254,3 +254,21 @@
 	background: #f8d7da;
 	color: #721c24;
 }
+.dashboard-filters {
+	display: grid;
+	grid-template-columns: minmax(260px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) auto;
+	gap: 12px;
+	align-items: end;
+	margin-bottom: 20px;
+}
+
+.dashboard-filters button {
+	height: 42px;
+	white-space: nowrap;
+}
+
+@media (max-width: 800px) {
+	.dashboard-filters {
+		grid-template-columns: 1fr;
+	}
+}

@@ -42,7 +42,46 @@
 	<h3>Driver Availability</h3>
 
 	<div id="driver-status"></div>
+
+
 </section>
+<div class="dashboard-filters">
+	<label class="field-group">
+		<span>Search Reservations</span>
+		<input
+			id="reservation-search"
+			type="search"
+			placeholder="Name, phone, plate, route, or driver"
+		/>
+	</label>
+
+	<label class="field-group">
+		<span>Status</span>
+		<select id="status-filter">
+			<option value="">All Statuses</option>
+			<option value="Scheduled">Scheduled</option>
+			<option value="In Progress">In Progress</option>
+			<option value="Completed">Completed</option>
+			<option value="Cancelled">Cancelled</option>
+		</select>
+	</label>
+
+	<label class="field-group">
+		<span>Payment</span>
+		<select id="payment-filter">
+			<option value="">All Payments</option>
+			<option value="Pending">Pending</option>
+			<option value="Paid">Paid</option>
+			<option value="Included">Included</option>
+			<option value="Waived">Waived</option>
+			<option value="Refunded">Refunded</option>
+		</select>
+	</label>
+
+	<button id="clear-filters" type="button">
+		Clear Filters
+	</button>
+</div>
 
 </div>
                             <h3>Today’s Reservations</h3>
