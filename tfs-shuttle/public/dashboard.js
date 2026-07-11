@@ -37,6 +37,45 @@ function getStatusClass(status) {
 			return "";
 	}
 }
+function formatElapsedTime(startedAt, completedAt, status) {
+	if (!startedAt) {
+		return "—";
+	}
+
+	const startTime = new Date(startedAt);
+	const endTime =
+		status === "Completed" && completedAt
+			? new Date(completedAt)
+			: new Date();
+
+	const elapsedMilliseconds = endTime - startTime;
+
+	if (elapsedMilliseconds < 0 || Number.isNaN(elapsedMilliseconds)) {
+		return "—";
+	}
+
+	const totalMinutes = Math.floor(elapsedMilliseconds / 60000);
+	const hours = Math.floor(totalMinutes / 60);
+	const minutes = totalMinutes % 60;
+
+	if (hours > 0) {
+		return `${hours} hr ${minutes} min`;
+	}
+
+	return `${minutes} min`;
+}
+
+function getElapsedClass(status) {
+	if (status === "In Progress") {
+		return "elapsed-active";
+	}
+
+	if (status === "Completed") {
+		return "elapsed-completed";
+	}
+
+	return "";
+}
 function updateReservation(id, driver, status) {
 	fetch("/api/reservations", {
 		method: "PATCH",
@@ -118,35 +157,76 @@ document.getElementById("cancelled-count").textContent = cancelled;
 		const table = document.getElementById("reservations-table");
 
 		if (reservations.length === 0) {
-			table.innerHTML = '<tr><td colspan="7">No reservations yet.</td></tr>';
+			table.innerHTML = '<tr><td colspan="8">No reservations yet.</td></tr>';
 			return;
 		}
 
-		table.innerHTML = reservations.map((reservation) => `
+		table.innerHTML = reservations
+	.map(
+		(reservation) => `
 			<tr>
 				<td>${reservation.expected_takeout_time || ""}</td>
-				<td>${reservation.first_name || ""} ${reservation.last_name || ""}</td>
-				<td>${reservation.launch_site || ""} → ${reservation.takeout_site || ""}</td>
+
 				<td>
-					${reservation.vehicle_color || ""} ${reservation.vehicle_year || ""} ${reservation.vehicle_make || ""} ${reservation.vehicle_model || ""}
-					<br>
-					${reservation.license_state || ""} ${reservation.license_county || ""}-${reservation.license_plate || ""}
+					${reservation.first_name || ""}
+					${reservation.last_name || ""}
 				</td>
+
 				<td>
-					<select class="driver-select" data-id="${reservation.id}">
+					${reservation.launch_site || ""}
+					→
+					${reservation.takeout_site || ""}
+				</td>
+
+				<td>
+					${reservation.vehicle_color || ""}
+					${reservation.vehicle_year || ""}
+					${reservation.vehicle_make || ""}
+					${reservation.vehicle_model || ""}
+					<br>
+					${reservation.license_state || ""}
+					${
+						reservation.license_county
+							? `${reservation.license_county}-`
+							: ""
+					}${reservation.license_plate || ""}
+				</td>
+
+				<td>
+					<select
+						class="driver-select"
+						data-id="${reservation.id}"
+					>
 						${driverOptions(reservation.driver)}
 					</select>
 				</td>
+
 				<td>
 					<select
-	class="status-select ${getStatusClass(reservation.status)}"
-	data-id="${reservation.id}">
+						class="status-select ${getStatusClass(reservation.status)}"
+						data-id="${reservation.id}"
+					>
 						${statusOptions(reservation.status)}
 					</select>
 				</td>
-				<td>${reservation.payment_method || ""} / ${reservation.payment_status || ""}</td>
+
+				<td class="elapsed-time ${getElapsedClass(reservation.status)}">
+					${formatElapsedTime(
+						reservation.started_at,
+						reservation.completed_at,
+						reservation.status
+					)}
+				</td>
+
+				<td>
+					${reservation.payment_method || ""}
+					/
+					${reservation.payment_status || ""}
+				</td>
 			</tr>
-		`).join("");
+		`
+	)
+	.join("");
 
 		document.querySelectorAll(".driver-select").forEach((select) => {
 			select.addEventListener("change", function () {

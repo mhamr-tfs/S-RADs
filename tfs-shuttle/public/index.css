@@ -207,3 +207,18 @@
 	font-size: 14px;
 	line-height: 1.4;
 }
+.elapsed-time {
+	white-space: nowrap;
+	font-weight: bold;
+	text-align: center;
+}
+
+.elapsed-active {
+	background: #cce5ff;
+	color: #004085;
+}
+
+.elapsed-completed {
+	background: #d4edda;
+	color: #155724;
+}
