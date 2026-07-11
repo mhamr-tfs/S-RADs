@@ -100,58 +100,65 @@ export default {
 		}
 
 		if (url.pathname === "/api/reservations" && request.method === "PATCH") {
-			const update = await request.json();
+	const update = await request.json();
+	const now = new Date().toISOString();
 
-			const now = new Date().toISOString();
+	const driver = update.driver ?? null;
+	const status = update.status ?? null;
+	const paymentStatus = update.payment_status ?? null;
 
-let startedAt = null;
-let completedAt = null;
+	const startedAt = status === "In Progress" ? now : null;
+	const completedAt = status === "Completed" ? now : null;
+	const paidAt = paymentStatus === "Paid" ? now : null;
 
-if (update.status === "In Progress") {
-	startedAt = now;
+	await env.DB.prepare(`
+		UPDATE reservations
+		SET
+			driver = COALESCE(?, driver),
+			status = COALESCE(?, status),
+
+			started_at =
+				CASE
+					WHEN ? = 'In Progress'
+					THEN COALESCE(started_at, ?)
+					ELSE started_at
+				END,
+
+			completed_at =
+				CASE
+					WHEN ? = 'Completed'
+					THEN COALESCE(completed_at, ?)
+					ELSE completed_at
+				END,
+
+			payment_status = COALESCE(?, payment_status),
+
+			paid_at =
+				CASE
+					WHEN ? = 'Paid'
+					THEN COALESCE(paid_at, ?)
+					ELSE paid_at
+				END
+
+		WHERE id = ?
+	`).bind(
+		driver,
+		status,
+		status,
+		startedAt,
+		status,
+		completedAt,
+		paymentStatus,
+		paymentStatus,
+		paidAt,
+		update.id
+	).run();
+
+	return Response.json({
+		success: true,
+		message: "Reservation updated",
+	});
 }
-
-if (update.status === "Completed") {
-	completedAt = now;
-}
-
-			await env.DB.prepare(`
-				UPDATE reservations
-SET
-	driver = ?,
-	status = ?,
-	started_at = COALESCE(started_at, ?),
-	completed_at = ?
-WHERE id = ?
-`).bind(
-	update.driver || "Unassigned",
-	update.status || "Scheduled",
-	startedAt,
-	completedAt,
-	update.id
-).run();
-			return Response.json({
-				success: true,
-				message: "Reservation updated",
-			});
-		}
-
-		if (url.pathname === "/api/routes" && request.method === "GET") {
-			const result = await env.DB.prepare(
-				"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
-			).all();
-
-			return Response.json(result.results);
-		}
-
-		if (url.pathname === "/api/drivers" && request.method === "GET") {
-			const result = await env.DB.prepare(
-				"SELECT * FROM drivers WHERE active = 'Yes' ORDER BY name"
-			).all();
-
-			return Response.json(result.results);
-		}
-
 		return new Response("Not Found", { status: 404 });
 	},
 };

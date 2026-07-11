@@ -222,3 +222,35 @@
 	background: #d4edda;
 	color: #155724;
 }
+.payment-method {
+	margin-bottom: 6px;
+	font-weight: bold;
+}
+
+.payment-select {
+	min-width: 115px;
+	border: 1px solid #999;
+	border-radius: 4px;
+	padding: 4px 8px;
+	font-weight: bold;
+}
+
+.payment-pending {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.payment-paid {
+	background: #d4edda;
+	color: #155724;
+}
+
+.payment-included {
+	background: #cce5ff;
+	color: #004085;
+}
+
+.payment-refunded {
+	background: #f8d7da;
+	color: #721c24;
+}

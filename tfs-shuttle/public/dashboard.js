@@ -19,6 +19,47 @@ function statusOptions(selectedStatus) {
 		return `<option value="${status}" ${selected}>${status}</option>`;
 	}).join("");
 }
+function paymentOptions(selectedStatus) {
+	const statuses = [
+		"Pending",
+		"Paid",
+		"Included",
+		"Waived",
+		"Refunded",
+	];
+
+	return statuses
+		.map((status) => {
+			const selected = status === selectedStatus ? "selected" : "";
+
+			return `
+				<option value="${status}" ${selected}>
+					${status}
+				</option>
+			`;
+		})
+		.join("");
+}
+
+function getPaymentClass(status) {
+	switch (status) {
+		case "Pending":
+			return "payment-pending";
+
+		case "Paid":
+			return "payment-paid";
+
+		case "Included":
+		case "Waived":
+			return "payment-included";
+
+		case "Refunded":
+			return "payment-refunded";
+
+		default:
+			return "";
+	}
+}
 function getStatusClass(status) {
 	switch (status) {
 		case "Scheduled":
@@ -76,17 +117,18 @@ function getElapsedClass(status) {
 
 	return "";
 }
-function updateReservation(id, driver, status) {
+function updateReservation(id, driver, status, paymentStatus) {
 	fetch("/api/reservations", {
 		method: "PATCH",
 		headers: {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-			id,
-			driver,
-			status,
-		}),
+	id,
+	driver,
+	status,
+	payment_status: paymentStatus,
+}),
 	})
 		.then((response) => {
 			if (!response.ok) {
@@ -219,24 +261,41 @@ document.getElementById("cancelled-count").textContent = cancelled;
 				</td>
 
 				<td>
-					${reservation.payment_method || ""}
-					/
-					${reservation.payment_status || ""}
-				</td>
+	<div class="payment-method">
+		${reservation.payment_method || "Not selected"}
+	</div>
+
+	<select
+		class="payment-select ${getPaymentClass(reservation.payment_status)}"
+		data-id="${reservation.id}"
+	>
+		${paymentOptions(reservation.payment_status)}
+	</select>
+</td>
 			</tr>
 		`
 	)
 	.join("");
 
-		document.querySelectorAll(".driver-select").forEach((select) => {
-			select.addEventListener("change", function () {
-				const id = Number(this.dataset.id);
-				const row = this.closest("tr");
-				const status = row.querySelector(".status-select").value;
+		document.querySelectorAll(".status-select").forEach((select) => {
+	select.addEventListener("change", function () {
+		const id = Number(this.dataset.id);
+		const row = this.closest("tr");
 
-				updateReservation(id, this.value, status);
-			});
-		});
+		const driver = row.querySelector(".driver-select").value;
+		const paymentStatus = row.querySelector(".payment-select").value;
+
+		this.className =
+			"status-select " + getStatusClass(this.value);
+
+		updateReservation(
+			id,
+			driver,
+			this.value,
+			paymentStatus
+		);
+	});
+});
 
 		document.querySelectorAll(".status-select").forEach((select) => {
 	select.addEventListener("change", function () {
@@ -247,6 +306,25 @@ document.getElementById("cancelled-count").textContent = cancelled;
 		this.className = "status-select " + getStatusClass(this.value);
 
 		updateReservation(id, driver, this.value);
+	});
+});
+document.querySelectorAll(".payment-select").forEach((select) => {
+	select.addEventListener("change", function () {
+		const id = Number(this.dataset.id);
+		const row = this.closest("tr");
+
+		const driver = row.querySelector(".driver-select").value;
+		const status = row.querySelector(".status-select").value;
+
+		this.className =
+			"payment-select " + getPaymentClass(this.value);
+
+		updateReservation(
+			id,
+			driver,
+			status,
+			this.value
+		);
 	});
 });
 	});

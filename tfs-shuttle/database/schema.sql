@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS reservations (
 
 	payment_method TEXT,
 	payment_status TEXT DEFAULT 'Pending',
+	paid_at TEXT,
 	payment_reason TEXT,
 	cash_location TEXT,
 
