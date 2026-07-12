@@ -178,7 +178,6 @@ function updateReservation(id, driver, status, paymentStatus) {
 	status,
 	payment_status: paymentStatus,
 }),
-}),
 	})
 		.then((response) => {
 			if (!response.ok) {
