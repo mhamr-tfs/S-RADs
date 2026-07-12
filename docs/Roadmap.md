@@ -1,4 +1,4 @@
-# Thermopolis Fly Shop Shuttle Dispatch System
+# S-RADs Development Roadmap
 
 ## Current Version
 
@@ -39,3 +39,12 @@ Phase 2 - Dispatch ✅
 - [ ] Reports
 - [ ] CSV export
 - [ ] Multi-shop support
+
+Version	Status	Milestone
+0.1.x	✅ Complete	Foundation
+0.2.x	✅ Complete	Reservation System
+0.3.0-alpha	✅ Complete	Dispatch Dashboard
+0.3.1-alpha	✅ Complete	Search & Filtering
+0.3.2-alpha	🚧 Next	Driver Availability
+0.4.0-beta	⏳ Planned	Feature Complete
+1.0.0	🎯 Goal	Production Release
