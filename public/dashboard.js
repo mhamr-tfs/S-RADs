@@ -173,11 +173,11 @@ function updateReservation(id, driver, status, paymentStatus) {
 			"Content-Type": "application/json",
 		},
 		body: JSON.stringify({
-	id,
-	driver,
-	status,
-	payment_status: paymentStatus,
-}),
+			id,
+			driver,
+			status,
+			payment_status: paymentStatus,
+		}),
 	})
 		.then((response) => {
 			if (!response.ok) {
@@ -192,10 +192,85 @@ function updateReservation(id, driver, status, paymentStatus) {
 		})
 		.catch((error) => {
 			console.error("Reservation update failed:", error);
-			alert("The reservation did not save. Please refresh the dashboard and try again.");
+			alert(
+				"The reservation did not save. Please refresh the dashboard and try again."
+			);
 		});
 }
+function renderDriverAvailability(reservations) {
+	const driverContainer = document.getElementById("driver-status");
 
+	driverContainer.innerHTML = "";
+
+	drivers.forEach((driver) => {
+		const activeTrip = reservations.find(
+			(reservation) =>
+				reservation.driver === driver.name &&
+				reservation.status === "In Progress"
+		);
+
+		if (activeTrip) {
+			const customerName = [
+				activeTrip.first_name,
+				activeTrip.last_name,
+			]
+				.filter(Boolean)
+				.join(" ");
+
+			const elapsedTime = formatElapsedTime(
+				activeTrip.started_at,
+				activeTrip.completed_at,
+				activeTrip.status
+			);
+
+			driverContainer.innerHTML += `
+				<div class="driver-card driver-busy">
+					<div class="driver-card-header">
+						<span class="driver-indicator">🔵</span>
+						<span>${driver.name}</span>
+					</div>
+
+					<div class="driver-state">On Shuttle</div>
+
+					<div class="driver-details">
+						<div>
+							<strong>Customer:</strong>
+							${customerName || "Not listed"}
+						</div>
+
+						<div>
+							<strong>Route:</strong>
+							${activeTrip.launch_site || ""}
+							→
+							${activeTrip.takeout_site || ""}
+						</div>
+
+						<div>
+							<strong>Elapsed:</strong>
+							${elapsedTime}
+						</div>
+
+						<div>
+							<strong>Expected Finish:</strong>
+							${activeTrip.expected_takeout_time || "Not provided"}
+						</div>
+					</div>
+				</div>
+			`;
+		} else {
+			driverContainer.innerHTML += `
+				<div class="driver-card driver-available">
+					<div class="driver-card-header">
+						<span class="driver-indicator">🟢</span>
+						<span>${driver.name}</span>
+					</div>
+
+					<div class="driver-state">Available</div>
+				</div>
+			`;
+		}
+	});
+}
 function loadDashboard() {
 	Promise.all([
 		fetch("/api/reservations").then((response) => response.json()),
@@ -204,34 +279,7 @@ function loadDashboard() {
 		drivers = driverList;
 		allReservations = reservations;
 
-		const driverContainer = document.getElementById("driver-status");
-
-		driverContainer.innerHTML = "";
-
-		drivers.forEach((driver) => {
-			const activeTrip = reservations.find(
-				(reservation) =>
-					reservation.driver === driver.name &&
-					reservation.status === "In Progress"
-			);
-
-			if (activeTrip) {
-				driverContainer.innerHTML += `
-					<div class="driver-card driver-busy">
-						🔵 ${driver.name}<br>
-						On Shuttle<br>
-						${activeTrip.launch_site} → ${activeTrip.takeout_site}
-					</div>
-				`;
-			} else {
-				driverContainer.innerHTML += `
-					<div class="driver-card driver-available">
-						🟢 ${driver.name}<br>
-						Available
-					</div>
-				`;
-			}
-		});
+		renderDriverAvailability(reservations);
 
 		const scheduled = reservations.filter(
 			(reservation) => reservation.status === "Scheduled"

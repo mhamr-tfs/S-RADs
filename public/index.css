@@ -168,15 +168,42 @@
 }
 #driver-status {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 14px;
 }
 
 .driver-card {
-	padding: 14px;
-	border-radius: 8px;
-	font-weight: bold;
+	min-height: 95px;
+	padding: 16px;
 	border: 1px solid #ccc;
+	border-radius: 10px;
+	box-sizing: border-box;
+}
+
+.driver-card-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 19px;
+	font-weight: bold;
+}
+
+.driver-indicator {
+	font-size: 18px;
+}
+
+.driver-state {
+	margin-top: 8px;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.driver-details {
+	display: grid;
+	gap: 6px;
+	margin-top: 12px;
+	font-size: 14px;
+	line-height: 1.35;
 }
 
 .driver-available {
