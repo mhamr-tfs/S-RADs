@@ -46,5 +46,16 @@ Version	Status	Milestone
 0.3.0-alpha	✅ Complete	Dispatch Dashboard
 0.3.1-alpha	✅ Complete	Search & Filtering
 0.3.2-alpha	🚧 Next	Driver Availability
+Future Enhancements
+
+□ Photo upload (Cloudflare R2)
+
+□ Vehicle documentation
+
+□ Key location verification
+
+□ Damage documentation
+
+□ Driver mobile capture
 0.4.0-beta	⏳ Planned	Feature Complete
 1.0.0	🎯 Goal	Production Release
