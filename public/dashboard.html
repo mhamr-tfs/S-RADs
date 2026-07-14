@@ -4,118 +4,46 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Thermopolis Fly Shop Shuttle Dashboard</title>
-
-<link rel="stylesheet" href="/index.css">
+		<link rel="stylesheet" href="/index.css" />
 	</head>
-
 	<body>
 		<header>
 			<h1>Thermopolis Fly Shop</h1>
 			<h2>🚐 Shuttle Dispatch System</h2>
-			<p>Version 0.3.1.1-alpha</p>
+			<p>Version 0.3.2.1-alpha</p>
 		</header>
 
 		<main class="dashboard-main">
-	<section class="card dashboard-card">
+			<section class="card dashboard-card">
 				<div id="dispatch-summary" class="dispatch-summary">
+					<div class="summary-card scheduled"><div class="summary-number" id="scheduled-count">0</div><div class="summary-label">Scheduled</div></div>
+					<div class="summary-card progress"><div class="summary-number" id="progress-count">0</div><div class="summary-label">In Progress</div></div>
+					<div class="summary-card completed"><div class="summary-number" id="completed-count">0</div><div class="summary-label">Completed</div></div>
+					<div class="summary-card cancelled"><div class="summary-number" id="cancelled-count">0</div><div class="summary-label">Cancelled</div></div>
+				</div>
 
-	<div class="summary-card scheduled">
-		<div class="summary-number" id="scheduled-count">0</div>
-		<div class="summary-label">Scheduled</div>
-	</div>
+				<section class="card">
+					<h3>Driver Availability</h3>
+					<div id="driver-status"></div>
+				</section>
 
-	<div class="summary-card progress">
-		<div class="summary-number" id="progress-count">0</div>
-		<div class="summary-label">In Progress</div>
-	</div>
+				<div class="dashboard-filters">
+					<label class="field-group"><span>Search Reservations</span><input id="reservation-search" type="search" placeholder="Name, phone, plate, route, or driver" /></label>
+					<label class="field-group"><span>Status</span><select id="status-filter"><option value="">All Statuses</option><option value="Scheduled">Scheduled</option><option value="In Progress">In Progress</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option></select></label>
+					<label class="field-group"><span>Payment</span><select id="payment-filter"><option value="">All Payments</option><option value="Pending">Pending</option><option value="Paid">Paid</option><option value="Included">Included</option><option value="Waived">Waived</option><option value="Refunded">Refunded</option></select></label>
+					<button id="clear-filters" type="button">Clear Filters</button>
+				</div>
 
-	<div class="summary-card completed">
-		<div class="summary-number" id="completed-count">0</div>
-		<div class="summary-label">Completed</div>
-	</div>
-
-	<div class="summary-card cancelled">
-		<div class="summary-number" id="cancelled-count">0</div>
-		<div class="summary-label">Cancelled</div>
-	</div>
-	<section class="card">
-	<h3>Driver Availability</h3>
-
-	<div id="driver-status"></div>
-	<div class="table-wrapper">
-	<table>
-		<!-- existing table content -->
-	</table>
-</div>
-
-
-</section>
-<div class="dashboard-filters">
-	<label class="field-group">
-		<span>Search Reservations</span>
-		<input
-			id="reservation-search"
-			type="search"
-			placeholder="Name, phone, plate, route, or driver"
-		/>
-	</label>
-
-	<label class="field-group">
-		<span>Status</span>
-		<select id="status-filter">
-			<option value="">All Statuses</option>
-			<option value="Scheduled">Scheduled</option>
-			<option value="In Progress">In Progress</option>
-			<option value="Completed">Completed</option>
-			<option value="Cancelled">Cancelled</option>
-		</select>
-	</label>
-
-	<label class="field-group">
-		<span>Payment</span>
-		<select id="payment-filter">
-			<option value="">All Payments</option>
-			<option value="Pending">Pending</option>
-			<option value="Paid">Paid</option>
-			<option value="Included">Included</option>
-			<option value="Waived">Waived</option>
-			<option value="Refunded">Refunded</option>
-		</select>
-	</label>
-
-	<button id="clear-filters" type="button">
-		Clear Filters
-	</button>
-</div>
-
-</div>
-                            <h3>Today’s Reservations</h3>
-
-				<table>
-					<thead>
-						<tr>
-							<tr>
-	<th>Takeout Time</th>
-	<th>Customer</th>
-	<th>Contact</th>
-	<th>Route</th>
-	<th>Vehicle</th>
-	<th>Keys</th>
-	<th>Driver</th>
-	<th>Status</th>
-	<th>Elapsed</th>
-	<th>Payment</th>
-</tr>
-						</tr>
-					</thead>
-					<tbody id="reservations-table">
-						<tr>
-							<td colspan="10">Loading reservations...</td>
-						</tr>
-					</tbody>
-				</table>
+				<h3>Today’s Reservations</h3>
+				<div class="table-wrapper">
+					<table>
+						<thead><tr><th>Takeout Time</th><th>Customer</th><th>Contact</th><th>Route</th><th>Vehicle</th><th>Keys</th><th>Driver</th><th>Status</th><th>Elapsed</th><th>Payment</th></tr></thead>
+						<tbody id="reservations-table"><tr><td colspan="10">Loading reservations...</td></tr></tbody>
+					</table>
+				</div>
 			</section>
 		</main>
-		<script src="/dashboard.js"></script>
-			</body>
+
+		<script type="module" src="/js/dashboard.js"></script>
+	</body>
 </html>
