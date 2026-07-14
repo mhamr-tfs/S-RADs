@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS reservations (
 	vehicle_photo_url TEXT,
 
 	requested_at TEXT DEFAULT CURRENT_TIMESTAMP,
+	started_at TEXT,
 	completed_at TEXT
 );
 CREATE TABLE IF NOT EXISTS routes (

@@ -59,3 +59,22 @@ Future Enhancements
 □ Driver mobile capture
 0.4.0-beta	⏳ Planned	Feature Complete
 1.0.0	🎯 Goal	Production Release
+Post-1.0 Enhancements
+
+□ Smart Dispatch Alerts
+    • Route-aware timing
+    • Dispatch deadline calculation
+    • Push notifications
+    • Audible office alerts
+    • Driver availability awareness
+
+□ Photo Documentation
+    • Vehicle verification
+    • Key location
+    • Pickup
+    • Drop-off
+    • Damage documentation
+
+□ Mobile Driver App
+
+□ Reporting & Analytics
