@@ -211,6 +211,11 @@
 	color: #155724;
 }
 
+.driver-assigned {
+	background: #fff3cd;
+	color: #856404;
+}
+
 .driver-busy {
 	background: #cce5ff;
 	color: #004085;

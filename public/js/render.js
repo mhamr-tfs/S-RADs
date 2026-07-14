@@ -12,17 +12,142 @@ export function renderSummary(reservations) {
 }
 
 export function renderDriverAvailability(reservations) {
-	const container = document.getElementById("driver-status");
-	container.innerHTML = "";
-	state.drivers.forEach((driver) => {
-		const trip = reservations.find((reservation) => reservation.driver === driver.name && reservation.status === "In Progress");
-		if (!trip) {
-			container.innerHTML += `<div class="driver-card driver-available"><div class="driver-card-header"><span class="driver-indicator">🟢</span><span>${driver.name}</span></div><div class="driver-state">Available</div></div>`;
-			return;
+	const driverContainer = document.getElementById("driver-status");
+
+	const driverCards = state.drivers.map((driver) => {
+		const activeTrip = reservations.find(
+			(reservation) =>
+				reservation.driver === driver.name &&
+				reservation.status === "In Progress"
+		);
+
+		if (activeTrip) {
+			const customerName = [
+				activeTrip.first_name,
+				activeTrip.last_name,
+			]
+				.filter(Boolean)
+				.join(" ");
+
+			const elapsedTime = formatElapsedTime(
+				activeTrip.started_at,
+				activeTrip.completed_at,
+				activeTrip.status
+			);
+
+			return {
+				priority: 1,
+				html: `
+					<div class="driver-card driver-busy">
+						<div class="driver-card-header">
+							<span class="driver-indicator">🔵</span>
+							<span>${driver.name}</span>
+						</div>
+
+						<div class="driver-state">On Shuttle</div>
+
+						<div class="driver-details">
+							<div>
+								<strong>Customer:</strong>
+								${customerName || "Not listed"}
+							</div>
+
+							<div>
+								<strong>Route:</strong>
+								${activeTrip.launch_site || ""}
+								→
+								${activeTrip.takeout_site || ""}
+							</div>
+
+							<div>
+								<strong>Elapsed:</strong>
+								${elapsedTime}
+							</div>
+
+							<div>
+								<strong>Expected Finish:</strong>
+								${activeTrip.expected_takeout_time || "Not provided"}
+							</div>
+						</div>
+					</div>
+				`,
+			};
 		}
-		const customer = [trip.first_name, trip.last_name].filter(Boolean).join(" ");
-		container.innerHTML += `<div class="driver-card driver-busy"><div class="driver-card-header"><span class="driver-indicator">🔵</span><span>${driver.name}</span></div><div class="driver-state">On Shuttle</div><div class="driver-details"><div><strong>Customer:</strong> ${customer || "Not listed"}</div><div><strong>Route:</strong> ${trip.launch_site || ""} → ${trip.takeout_site || ""}</div><div><strong>Elapsed:</strong> ${formatElapsedTime(trip.started_at, trip.completed_at, trip.status)}</div><div><strong>Expected Finish:</strong> ${trip.expected_takeout_time || "Not provided"}</div></div></div>`;
+
+		const assignedTrip = reservations
+			.filter(
+				(reservation) =>
+					reservation.driver === driver.name &&
+					reservation.status === "Scheduled"
+			)
+			.sort((a, b) => {
+				const timeA = a.expected_takeout_time || "99:99";
+				const timeB = b.expected_takeout_time || "99:99";
+
+				return timeA.localeCompare(timeB);
+			})[0];
+
+		if (assignedTrip) {
+			const customerName = [
+				assignedTrip.first_name,
+				assignedTrip.last_name,
+			]
+				.filter(Boolean)
+				.join(" ");
+
+			return {
+				priority: 2,
+				html: `
+					<div class="driver-card driver-assigned">
+						<div class="driver-card-header">
+							<span class="driver-indicator">🟡</span>
+							<span>${driver.name}</span>
+						</div>
+
+						<div class="driver-state">Assigned Next</div>
+
+						<div class="driver-details">
+							<div>
+								<strong>Customer:</strong>
+								${customerName || "Not listed"}
+							</div>
+
+							<div>
+								<strong>Route:</strong>
+								${assignedTrip.launch_site || ""}
+								→
+								${assignedTrip.takeout_site || ""}
+							</div>
+
+							<div>
+								<strong>Takeout Time:</strong>
+								${assignedTrip.expected_takeout_time || "Not provided"}
+							</div>
+						</div>
+					</div>
+				`,
+			};
+		}
+
+		return {
+			priority: 3,
+			html: `
+				<div class="driver-card driver-available">
+					<div class="driver-card-header">
+						<span class="driver-indicator">🟢</span>
+						<span>${driver.name}</span>
+					</div>
+
+					<div class="driver-state">Available</div>
+				</div>
+			`,
+		};
 	});
+
+	driverContainer.innerHTML = driverCards
+		.sort((a, b) => a.priority - b.priority)
+		.map((card) => card.html)
+		.join("");
 }
 
 export function renderReservations() {
