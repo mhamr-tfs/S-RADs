@@ -71,3 +71,33 @@
 
 	<p id="clear-result" aria-live="polite"></p>
 </section>
+<hr />
+
+<h3>Load Demo Reservations</h3>
+
+<p>
+	Loads six realistic reservations into an empty local
+	development database.
+</p>
+
+<label class="field-group">
+	<span>
+		Type <strong>LOAD DEMO DATA</strong> to confirm:
+	</span>
+
+	<input
+		id="demo-confirmation"
+		type="text"
+		autocomplete="off"
+		placeholder="LOAD DEMO DATA"
+	/>
+</label>
+
+<button
+	id="load-demo-reservations"
+	type="button"
+>
+	Load Demo Reservations
+</button>
+
+<p id="demo-result" aria-live="polite"></p>

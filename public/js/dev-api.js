@@ -55,3 +55,29 @@ export async function clearTestReservations(confirmation) {
 
 	return result;
 }
+//Adds a test reservation to the database
+export async function loadDemoReservations(confirmation) {
+	const response = await fetch(
+		"/api/dev/demo-reservations",
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				confirmation,
+			}),
+		}
+	);
+
+	const result = await response.json();
+
+	if (!response.ok) {
+		throw new Error(
+			result.message ||
+				`Demo data request failed with status ${response.status}`
+		);
+	}
+
+	return result;
+}
