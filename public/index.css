@@ -388,8 +388,76 @@
 	color: #666;
 	font-weight: normal;
 }
-/* formatting for dev tools */
+/* =====================================================
+   S-RADS Developer Tools
+   ===================================================== */
 
+.dev-tools-main {
+	width: min(96vw, 1100px);
+	margin: 30px auto;
+	padding: 0 20px;
+	box-sizing: border-box;
+}
+
+.dev-tools-card {
+	margin-bottom: 24px;
+}
+
+.dev-status-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 14px;
+	margin-top: 16px;
+}
+
+.dev-status-item {
+	padding: 14px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	background: #f8f9fa;
+}
+
+.dev-status-label {
+	display: block;
+	margin-bottom: 6px;
+	font-size: 0.85rem;
+	font-weight: bold;
+	color: #555;
+}
+
+.dev-status-value {
+	font-size: 1.1rem;
+	font-weight: bold;
+}
+
+.dev-tools-warning {
+	padding: 12px 16px;
+	border: 1px solid #856404;
+	border-radius: 8px;
+	background: #fff3cd;
+	color: #664d03;
+	font-weight: bold;
+}
+
+.dev-tools-actions {
+	display: grid;
+	gap: 28px;
+}
+
+.dev-tool-group {
+	padding-top: 8px;
+}
+
+.dev-tool-group + .dev-tool-group {
+	border-top: 1px solid #ddd;
+	padding-top: 24px;
+}
+
+.dev-tool-result {
+	min-height: 24px;
+	margin-top: 12px;
+	font-weight: bold;
+}
 .dev-danger-zone {
 	margin-top: 24px;
 	border: 2px solid #b02a37;
