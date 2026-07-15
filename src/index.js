@@ -175,7 +175,63 @@ export default {
 
 			return Response.json(result.results);
 		}
+		// for devloper tools section - works on localhost only
+		if (url.pathname === "/dev-tools") {
+	const assetUrl = new URL(request.url);
+	assetUrl.pathname = "/dev-tools.html";
 
+	return env.ASSETS.fetch(
+		new Request(assetUrl, request)
+	);
+}
+if (
+	url.pathname === "/api/dev/reservations" &&
+	request.method === "DELETE"
+) {
+	const hostname = url.hostname;
+
+	const isLocal =
+		hostname === "127.0.0.1" ||
+		hostname === "localhost";
+
+	if (!isLocal) {
+		return Response.json(
+			{
+				success: false,
+				message:
+					"Developer database tools are only available locally.",
+			},
+			{ status: 403 }
+		);
+	}
+
+	const body = await request.json();
+
+	if (body.confirmation !== "CLEAR TEST DATA") {
+		return Response.json(
+			{
+				success: false,
+				message: "Confirmation text did not match.",
+			},
+			{ status: 400 }
+		);
+	}
+
+	const countResult = await env.DB.prepare(
+		"SELECT COUNT(*) AS count FROM reservations"
+	).first();
+
+	await env.DB.prepare(
+		"DELETE FROM reservations"
+	).run();
+
+	return Response.json({
+		success: true,
+		deleted: countResult?.count ?? 0,
+		message: `${countResult?.count ?? 0} test reservations cleared.`,
+	});
+}
+//end devloper tools section
 		return new Response("Not Found", { status: 404 });
 	},
 };

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    ...
+<section class="card">
+	<h2>System Status</h2>
+
+	<p>
+		<strong>Version:</strong>
+		0.3.3.1-alpha
+	</p>
+
+	<p>
+		<strong>Worker:</strong>
+		<span id="worker-status">Checking...</span>
+	</p>
+
+	<p>
+		<strong>Database:</strong>
+		<span id="database-status">Checking...</span>
+	</p>
+
+	<p>
+		<strong>Reservations:</strong>
+		<span id="reservation-count">—</span>
+	</p>
+
+	<p>
+		<strong>Drivers:</strong>
+		<span id="driver-count">—</span>
+	</p>
+
+	<p>
+		<strong>Routes:</strong>
+		<span id="route-count">—</span>
+	</p>
+</section>
+
+<script type="module" src="/js/dev-tools.js"></script>
+
+<section class="card dev-danger-zone">
+	<h2>Developer Utilities</h2>
+
+	<h3>Clear Test Reservations</h3>
+
+	<p>
+		This removes every reservation from the local development
+		database. Routes and drivers will not be affected.
+	</p>
+
+	<label class="field-group">
+		<span>
+			Type <strong>CLEAR TEST DATA</strong> to confirm:
+		</span>
+
+		<input
+			id="clear-confirmation"
+			type="text"
+			autocomplete="off"
+			placeholder="CLEAR TEST DATA"
+		/>
+	</label>
+
+	<button
+		id="clear-reservations"
+		type="button"
+		class="danger-button"
+	>
+		Clear Test Reservations
+	</button>
+
+	<p id="clear-result" aria-live="polite"></p>
+</section>
