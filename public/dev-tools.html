@@ -1,46 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+
+		<title>S-RADS Developer Tools</title>
+
+		<link rel="stylesheet" href="/index.css" />
+	</head>
     ...
-<section class="card">
-	<h2>System Status</h2>
-
-	<p>
-		<strong>Version:</strong>
-		0.3.3.1-alpha
+<main class="dev-tools-main">
+	<p class="dev-tools-warning">
+		⚠ Development environment only. These controls must not be exposed to production users.
 	</p>
 
-	<p>
-		<strong>Worker:</strong>
-		<span id="worker-status">Checking...</span>
-	</p>
+	<section class="card dev-tools-card">
+		<h2>System Status</h2>
 
-	<p>
-		<strong>Database:</strong>
-		<span id="database-status">Checking...</span>
-	</p>
+		<div class="dev-status-grid">
+			<div class="dev-status-item">
+				<span class="dev-status-label">Version</span>
+				<span class="dev-status-value">0.3.3.1-alpha</span>
+			</div>
 
-	<p>
-		<strong>Reservations:</strong>
-		<span id="reservation-count">—</span>
-	</p>
+			<div class="dev-status-item">
+				<span class="dev-status-label">Worker</span>
+				<span id="worker-status" class="dev-status-value">
+					Checking...
+				</span>
+			</div>
 
-	<p>
-		<strong>Drivers:</strong>
-		<span id="driver-count">—</span>
-	</p>
+			<div class="dev-status-item">
+				<span class="dev-status-label">Database</span>
+				<span id="database-status" class="dev-status-value">
+					Checking...
+				</span>
+			</div>
 
-	<p>
-		<strong>Routes:</strong>
-		<span id="route-count">—</span>
-	</p>
-</section>
+			<div class="dev-status-item">
+				<span class="dev-status-label">Reservations</span>
+				<span id="reservation-count" class="dev-status-value">—</span>
+			</div>
+
+			<div class="dev-status-item">
+				<span class="dev-status-label">Drivers</span>
+				<span id="driver-count" class="dev-status-value">—</span>
+			</div>
+
+			<div class="dev-status-item">
+				<span class="dev-status-label">Routes</span>
+				<span id="route-count" class="dev-status-value">—</span>
+			</div>
+		</div>
+	</section>
+
+
+	<section class="card dev-tools-card dev-danger-zone">
+		<h2>Developer Utilities</h2>
+
+		<div class="dev-tools-actions">
+			<div class="dev-tool-group">
+				<!-- existing Clear Test Reservations controls -->
+				<p id="clear-result" class="dev-tool-result" aria-live="polite"></p>
+			</div>
+
+			<div class="dev-tool-group">
+				<!-- existing Load Demo Reservations controls -->
+				<p id="demo-result" class="dev-tool-result" aria-live="polite"></p>
+			</div>
+		</div>
+	</section>
+</main>
 
 <script type="module" src="/js/dev-tools.js"></script>
 
+<div class="dev-tools-actions">
+		<div class="dev-tool-group">
+			<h3>Clear Test Reservations</h3>
 <section class="card dev-danger-zone">
-	<h2>Developer Utilities</h2>
-
 	<h3>Clear Test Reservations</h3>
 
 	<p>
@@ -72,8 +112,12 @@
 	<p id="clear-result" aria-live="polite"></p>
 </section>
 <hr />
+		</div>
 
-<h3>Load Demo Reservations</h3>
+<div class="dev-tool-group">
+			<h3>Load Demo Reservations</h3>
+
+
 
 <p>
 	Loads six realistic reservations into an empty local
@@ -99,5 +143,8 @@
 >
 	Load Demo Reservations
 </button>
+</div>
+	</div>
+</section>
 
 <p id="demo-result" aria-live="polite"></p>
