@@ -22,8 +22,9 @@ Phase 2 - Dispatch ✅
 ### High Priority
 
 - [x] Search reservations
-- [ ] Driver availability panel
-- [ ] Dashboard metrics
+- [x] Driver availability panel
+- [x] Dashboard metrics
+- [x] Dev-tools
 - [ ] Payment reporting
 
 ### Medium Priority
