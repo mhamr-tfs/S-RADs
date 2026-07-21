@@ -645,6 +645,14 @@ if (
 		summary,
 	});
 }
+if (url.pathname === "/payment-report") {
+	const assetUrl = new URL(request.url);
+	assetUrl.pathname = "/payment-report.html";
+
+	return env.ASSETS.fetch(
+		new Request(assetUrl, request)
+	);
+}
 //end devloper tools section
 		return new Response("Not Found", { status: 404 });
 	},

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0"
+		/>
+
+		<title>S-RADS Payment Reports Tool</title>
+
+		<link rel="stylesheet" href="/index.css" />
+	</head>
+    ...
+<body>
+	<main class="payment-reports-main">
+		<h1>Payment Reports</h1>
+
+		<section>
+			<h2>Payment Summary</h2>
+
+			<div class="payment-summary">
+				<div class="payment-card">
+					<h3>Reservation Count</h3>
+					<p id="reservation-count">0</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Collected Revenue</h3>
+					<p id="collected-revenue">$0.00</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Outstanding Revenue</h3>
+					<p id="outstanding-revenue">$0.00</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Included Value</h3>
+					<p id="included-value">$0.00</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Waived Value</h3>
+					<p id="waived-value">$0.00</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Refunded Value</h3>
+					<p id="refunded-value">$0.00</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Paid Reservations</h3>
+					<p id="paid-count">0</p>
+				</div>
+
+				<div class="payment-card">
+					<h3>Pending Reservations</h3>
+					<p id="pending-count">0</p>
+				</div>
+			</div>
+		</section>
+
+		<section>
+			<h2>Outstanding Payments</h2>
+
+			<div id="outstanding-payments">
+				Coming soon...
+			</div>
+		</section>
+
+		<p id="payment-report-result" aria-live="polite"></p>
+	</main>
+
+	<script type="module" src="/js/payment-report.js"></script>
+</body>
+</html>
