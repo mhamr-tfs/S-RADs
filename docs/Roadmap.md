@@ -25,41 +25,33 @@ Phase 2 - Dispatch ✅
 - [x] Driver availability panel
 - [x] Dashboard metrics
 - [x] Dev-tools
-- [ ] Payment reporting
+- [ ] Payment reporting - 0.3.5-alpha
 
 ### Medium Priority
 
-- [ ] Archive completed shuttles
-- [ ] Cancelled reservation workflow
-- [ ] Better dashboard filtering
+- [ ] Archive completed shuttles -  0.3.6
+- [ ] Cancelled reservation workflow - 0.3.7
+- [ ] Better dashboard filtering 0.3.8
 
 ### Future
 
-- [ ] Square integration
-- [ ] Email confirmations
-- [ ] Reports
-- [ ] CSV export
-- [ ] Multi-shop support
-
-Version	Status	Milestone
-0.1.x	✅ Complete	Foundation
-0.2.x	✅ Complete	Reservation System
-0.3.0-alpha	✅ Complete	Dispatch Dashboard
-0.3.1-alpha	✅ Complete	Search & Filtering
-0.3.2-alpha	🚧 Next	Driver Availability
+- [ ] Square integration 0.4.0
+- [ ] Email confirmations 0.4.1
+- [ ] Reports 0.4.2
+- [ ] CSV export 0.4.3
+- [ ] Photo upload (Cloudflare R2) 0.4.4
+- [ ] Driver mobile capture 0.4.5
+Version Status  Milestone
+0.1.x   ✅ Complete  Foundation
+0.2.x   ✅ Complete  Reservation System
+0.3.0-alpha ✅ Complete  Dispatch Dashboard
+0.3.1-alpha ✅ Complete  Search & Filtering
+0.3.2-alpha 🚧 Next Driver Availability
 Future Enhancements
 
-□ Photo upload (Cloudflare R2)
 
-□ Vehicle documentation
-
-□ Key location verification
-
-□ Damage documentation
-
-□ Driver mobile capture
-0.4.0-beta	⏳ Planned	Feature Complete
-1.0.0	🎯 Goal	Production Release
+0.4.0-beta  ⏳ Planned   Feature Complete
+1.0.0   🎯 Goal Production Release
 Post-1.0 Enhancements
 
 □ Smart Dispatch Alerts
@@ -79,3 +71,5 @@ Post-1.0 Enhancements
 □ Mobile Driver App
 
 □ Reporting & Analytics
+
+□ Twilio Integration
