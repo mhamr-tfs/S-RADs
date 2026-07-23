@@ -563,3 +563,65 @@
     background: #cce5ff;
     color: #004085;
 }
+/* =====================================================
+   Shared Application Header
+   ===================================================== */
+
+.app-header {
+	background: #123c69;
+	color: white;
+	padding: 0 24px;
+}
+
+.app-header-inner {
+	width: min(96vw, 1600px);
+	margin: 0 auto;
+	min-height: 68px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+}
+
+.app-brand {
+	color: white;
+	font-size: 1.35rem;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.app-nav {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.app-nav a {
+	color: white;
+	padding: 10px 14px;
+	border-radius: 6px;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.app-nav a:hover,
+.app-nav a.active {
+	background: rgba(255, 255, 255, 0.16);
+}
+
+@media (max-width: 600px) {
+	.app-header-inner {
+		align-items: flex-start;
+		flex-direction: column;
+		padding: 14px 0;
+	}
+
+	.app-nav {
+		width: 100%;
+	}
+
+	.app-nav a {
+		flex: 1;
+		text-align: center;
+	}
+}
