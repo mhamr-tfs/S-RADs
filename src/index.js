@@ -653,6 +653,30 @@ if (url.pathname === "/payment-report") {
 		new Request(assetUrl, request)
 	);
 }
+// Outstanding payments endpoint
+if (
+	request.method === "GET" &&
+	url.pathname === "/api/reports/payments/outstanding"
+) {
+	const reservations = await env.DB.prepare(`
+		SELECT
+			id,
+			first_name,
+			last_name,
+			shuttle_date,
+			price,
+			payment_status
+		FROM reservations
+		WHERE payment_status = 'Pending'
+			AND status != 'Cancelled'
+		ORDER BY shuttle_date ASC
+	`).all();
+
+	return Response.json({
+		success: true,
+		reservations: reservations.results,
+	});
+}
 //end devloper tools section
 		return new Response("Not Found", { status: 404 });
 	},

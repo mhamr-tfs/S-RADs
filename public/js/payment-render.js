@@ -27,4 +27,40 @@ export function renderPaymentSummary(summary) {
 
 	document.getElementById("pending-count").textContent =
 		summary.pending_count;
+}export function renderOutstandingPayments(reservations) {
+	const tableBody = document.getElementById(
+		"outstanding-payments-body"
+	);
+
+	tableBody.innerHTML = "";
+
+	if (reservations.length === 0) {
+		const row = document.createElement("tr");
+
+		row.innerHTML = `
+			<td colspan="5">
+				No outstanding payments.
+			</td>
+		`;
+
+		tableBody.appendChild(row);
+		return;
+	}
+
+	for (const reservation of reservations) {
+		const row = document.createElement("tr");
+
+		row.innerHTML = `
+			<td>${reservation.id}</td>
+			<td>
+				${reservation.first_name}
+				${reservation.last_name}
+			</td>
+			<td>${reservation.shuttle_date}</td>
+			<td>$${Number(reservation.price).toFixed(2)}</td>
+			<td>${reservation.payment_status}</td>
+		`;
+
+		tableBody.appendChild(row);
+	}
 }

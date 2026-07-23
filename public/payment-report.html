@@ -65,9 +65,22 @@
 		<section>
 			<h2>Outstanding Payments</h2>
 
-			<div id="outstanding-payments">
-				Coming soon...
-			</div>
+			<div class="table-container">
+    <table id="outstanding-payments-table">
+        <thead>
+            <tr>
+                <th>Reservation</th>
+                <th>Customer</th>
+                <th>Due Date</th>
+                <th>Amount Due</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody id="outstanding-payments-body">
+        </tbody>
+    </table>
+</div>
 		</section>
 
 		<p id="payment-report-result" aria-live="polite"></p>

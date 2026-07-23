@@ -10,13 +10,21 @@ import {
 
 import {
 	renderPaymentSummary,
+	renderOutstandingPayments,
 } from "./payment-render.js";
 
 async function initializePaymentReport() {
 	try {
 		const summary = await getPaymentSummary();
 
-		renderPaymentSummary(summary);
+renderPaymentSummary(summary);
+
+const outstanding = await getOutstandingPayments();
+
+renderOutstandingPayments(outstanding);
+
+// Leave this commented out until the renderer exists.
+// renderOutstandingPayments(outstanding);
 
 		// Outstanding payments will be rendered next.
 		// const outstanding = await getOutstandingPayments();
