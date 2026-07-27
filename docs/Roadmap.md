@@ -25,22 +25,24 @@ Phase 2 - Dispatch ✅
 - [x] Driver availability panel
 - [x] Dashboard metrics
 - [x] Dev-tools
-- [ ] Payment reporting - 0.3.5-alpha
+- [x] Payment reporting - 0.3.5-alpha
 
 ### Medium Priority
 
-- [ ] Archive completed shuttles -  0.3.6
-- [ ] Cancelled reservation workflow - 0.3.7
-- [ ] Better dashboard filtering 0.3.8
+- [ ] Photo upload (Cloudflare R2) 0.3.6
+- [ ] Square integration 0.3.7
+- [ ] Email confirmations 0.3.8
+- [ ] Archive completed shuttles -  0.3.9
+- [ ] Cancelled reservation workflow - 0.3.10
+- [ ] Better dashboard filtering 0.3.11
+
 
 ### Future
 
-- [ ] Square integration 0.4.0
-- [ ] Email confirmations 0.4.1
-- [ ] Reports 0.4.2
-- [ ] CSV export 0.4.3
-- [ ] Photo upload (Cloudflare R2) 0.4.4
-- [ ] Driver mobile capture 0.4.5
+
+- [ ] Reports 0.4.0
+- [ ] CSV export 0.4.1
+- [ ] Driver mobile capture 0.4.2
 Version Status  Milestone
 0.1.x   ✅ Complete  Foundation
 0.2.x   ✅ Complete  Reservation System
