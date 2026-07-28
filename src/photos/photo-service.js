@@ -117,3 +117,47 @@ export async function handlePhotoUpload(request, env) {
 export async function handlePhotoList(request, env) {
     return await listPhotos(request, env);
 }
+export async function getPhotoFile(request, env) {
+
+    const url = new URL(request.url);
+
+    const photoId = url.pathname.split("/").pop();
+
+    const result = await env.DB.prepare(`
+        SELECT
+            storage_key,
+            content_type
+        FROM photos
+        WHERE id = ?
+    `)
+    .bind(photoId)
+    .first();
+
+    if (!result) {
+        return Response.json(
+            {
+                success: false,
+                message: "Photo not found."
+            },
+            { status: 404 }
+        );
+    }
+
+    const object = await env.binding_PHOTOS_BUCKET.get(result.storage_key);
+
+    if (!object) {
+        return Response.json(
+            {
+                success: false,
+                message: "Photo file missing."
+            },
+            { status: 404 }
+        );
+    }
+
+    return new Response(object.body, {
+        headers: {
+            "Content-Type": result.content_type
+        }
+    });
+}

@@ -1,6 +1,7 @@
 import {
     handlePhotoUpload,
-    handlePhotoList
+    handlePhotoList,
+    handlePhotoFile
 } from "./photos/photo-api.js";
 
 export default {
@@ -691,7 +692,12 @@ if (
 ) {
     return await handlePhotoUpload(request, env);
 }
-
+if (
+    request.method === "GET" &&
+    url.pathname.startsWith("/api/photos/file/")
+) {
+    return await handlePhotoFile(request, env);
+}
 if (
     request.method === "GET" &&
     url.pathname.startsWith("/api/photos/")
