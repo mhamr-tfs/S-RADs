@@ -25,24 +25,62 @@ export async function uploadPhoto(request, env) {
     }
 
     const storageKey =
-        `reservations/${reservationId}/${crypto.randomUUID()}-${photo.name}`;
+    `reservations/${reservationId}/${crypto.randomUUID()}-${photo.name}`;
 
-    await env.binding_PHOTOS_BUCKET.put(
-        storageKey,
-        await photo.arrayBuffer(),
-        {
-            httpMetadata: {
-                contentType: photo.type
-            }
+await env.binding_PHOTOS_BUCKET.put(
+    storageKey,
+    await photo.arrayBuffer(),
+    {
+        httpMetadata: {
+            contentType: photo.type
         }
-    );
+    }
+);
 
-    return Response.json({
-        success: true,
-        reservation_id: reservationId,
-        file_name: photo.name,
-        content_type: photo.type,
-        file_size: photo.size,
-        storage_key: storageKey
-    });
+let result;
+
+try {
+    result = await env.DB.prepare(`
+        INSERT INTO photos (
+            reservation_id,
+            photo_type,
+            uploaded_by,
+            file_name,
+            storage_key,
+            content_type
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    `)
+    .bind(
+        reservationId,
+        "vehicle",
+        "system",
+        photo.name,
+        storageKey,
+        photo.type
+    )
+    .run();
+} catch (error) {
+    console.log(`D1 insert failed. Deleting R2 object: ${storageKey}`);
+
+    await env.binding_PHOTOS_BUCKET.delete(storageKey);
+
+    console.log(`Deleted R2 object: ${storageKey}`);
+
+    return Response.json(
+        {
+            success: false,
+            message: "Photo could not be linked to the reservation.",
+            error: error.message
+        },
+        { status: 400 }
+    );
+}
+return Response.json({
+    success: true,
+    photo_id: result.meta.last_row_id,
+    reservation_id: reservationId,
+    storage_key: storageKey,
+    file_name: photo.name
+});
 }
