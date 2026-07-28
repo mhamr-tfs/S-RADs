@@ -1,4 +1,7 @@
-import { handlePhotoUpload } from "./photos/photo-api.js";
+import {
+    handlePhotoUpload,
+    handlePhotoList
+} from "./photos/photo-api.js";
 
 export default {
 	
@@ -687,6 +690,13 @@ if (
     url.pathname === "/api/photos/upload"
 ) {
     return await handlePhotoUpload(request, env);
+}
+
+if (
+    request.method === "GET" &&
+    url.pathname.startsWith("/api/photos/")
+) {
+    return await handlePhotoList(request, env);
 }
 
 		return new Response("Not Found", { status: 404 });

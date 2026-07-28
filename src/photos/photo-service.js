@@ -84,3 +84,36 @@ return Response.json({
     file_name: photo.name
 });
 }
+export async function listPhotos(request, env) {
+    const url = new URL(request.url);
+    const reservationId = url.pathname.split("/").pop();
+
+    const result = await env.DB.prepare(`
+        SELECT
+            id,
+            photo_type,
+            uploaded_by,
+            file_name,
+            storage_key,
+            content_type,
+            uploaded_at
+        FROM photos
+        WHERE reservation_id = ?
+        ORDER BY uploaded_at ASC
+    `)
+    .bind(reservationId)
+    .all();
+
+    return Response.json({
+        success: true,
+        reservation_id: reservationId,
+        photos: result.results
+    });
+}
+
+export async function handlePhotoUpload(request, env) {
+    return await uploadPhoto(request, env);
+}
+export async function handlePhotoList(request, env) {
+    return await listPhotos(request, env);
+}
