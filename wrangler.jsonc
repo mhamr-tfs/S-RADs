@@ -4,12 +4,12 @@
  */
 {
 	"d1_databases": [
-	{
-		"binding": "DB",
-		"database_name": "tfs_shuttles_database",
-		"database_id": "5f389c80-5c8e-4d89-82c9-19b976d312d8"
-	}
-],
+		{
+			"binding": "DB",
+			"database_name": "tfs_shuttles_database",
+			"database_id": "5f389c80-5c8e-4d89-82c9-19b976d312d8"
+		}
+	],
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "tfs-shuttle",
 	"main": "src/index.js",
@@ -25,7 +25,14 @@
 	"observability": {
 		"enabled": true
 	},
-	"upload_source_maps": true
+	"upload_source_maps": true,
+	"r2_buckets": [
+		{
+			"bucket_name": "s-rads-photos",
+			"binding": "binding_PHOTOS_BUCKET",
+			"remote": true
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

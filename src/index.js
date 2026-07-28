@@ -1,4 +1,7 @@
+import { handlePhotoUpload } from "./photos/photo-api.js";
+
 export default {
+	
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
 
@@ -556,6 +559,7 @@ if (
 		message: `${demoReservations.length} demo reservations loaded.`,
 	});
 }
+//end devloper tools section
 //Payment summary endpoint
 if (
 	request.method === "GET" &&
@@ -677,7 +681,14 @@ if (
 		reservations: reservations.results,
 	});
 }
-//end devloper tools section
+//Photo upload endpoint
+if (
+    request.method === "POST" &&
+    url.pathname === "/api/photos/upload"
+) {
+    return await handlePhotoUpload(request, env);
+}
+
 		return new Response("Not Found", { status: 404 });
 	},
 };
