@@ -41,7 +41,7 @@ export default {
 					? "Two Rivers Inn direct booking"
 					: null;
 
-			await env.DB.prepare(`
+			const result = await env.DB.prepare(`
 				INSERT INTO reservations (
 					first_name,
 					last_name,
@@ -103,6 +103,7 @@ export default {
 			return Response.json({
 				success: true,
 				message: "Reservation created",
+				reservation_id: result.meta.last_row_id,
 			});
 		}
 
