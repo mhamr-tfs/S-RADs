@@ -705,6 +705,126 @@ if (
 ) {
     return await handlePhotoList(request, env);
 }
+// ======================================================
+// Square Sandbox connectivity test
+// Temporary development endpoint
+// ======================================================
+if (
+	request.method === "GET" &&
+	url.pathname === "/api/square/test"
+) {
+	const squareResponse = await fetch(
+		`https://connect.squareupsandbox.com/v2/locations/${env.SQUARE_LOCATION_ID}`,
+		{
+			headers: {
+				Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+				"Square-Version": "2026-07-15",
+				"Content-Type": "application/json",
+			},
+		}
+	);
+
+	const data = await squareResponse.json();
+
+	if (!squareResponse.ok) {
+		return Response.json(
+			{
+				success: false,
+				status: squareResponse.status,
+				square: data,
+			},
+			{ status: squareResponse.status }
+		);
+	}
+
+	return Response.json({
+		success: true,
+		location: {
+			id: data.location?.id,
+			name: data.location?.name,
+			status: data.location?.status,
+			currency: data.location?.currency,
+		},
+	});
+}
+// ======================================================
+// Square Sandbox $1 payment-link test
+// Temporary development endpoint
+// ======================================================
+if (
+	request.method === "POST" &&
+	url.pathname === "/api/square/payment-link"
+) {
+	const body = await request.json();
+	const reservationId = Number(body.reservation_id);
+
+	const reservation = await env.DB.prepare(`
+		SELECT id, price, payment_status
+		FROM reservations
+		WHERE id = ?
+	`)
+	.bind(reservationId)
+	.first();
+
+	if (!reservation) {
+		return Response.json(
+			{
+				success: false,
+				message: "Reservation not found.",
+			},
+			{ status: 404 }
+		);
+	}
+
+	const amount = Math.round(
+		Number(reservation.price || 0) * 100
+	);
+
+	const squareResponse = await fetch(
+		"https://connect.squareupsandbox.com/v2/online-checkout/payment-links",
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
+				"Square-Version": "2026-07-15",
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				idempotency_key: crypto.randomUUID(),
+				quick_pay: {
+					name: `S-RADs Shuttle Reservation #${reservationId}`,
+					price_money: {
+						amount,
+						currency: "USD",
+					},
+					location_id: env.SQUARE_LOCATION_ID,
+				},
+			}),
+		}
+	);
+
+	const data = await squareResponse.json();
+
+	if (!squareResponse.ok) {
+		return Response.json(
+			{
+				success: false,
+				status: squareResponse.status,
+				square: data,
+			},
+			{ status: squareResponse.status }
+		);
+	}
+
+	return Response.json({
+		success: true,
+		reservation_id: reservationId,
+		amount,
+		payment_link_id: data.payment_link?.id,
+		order_id: data.payment_link?.order_id,
+		url: data.payment_link?.url,
+	});
+}
 
 		return new Response("Not Found", { status: 404 });
 	},

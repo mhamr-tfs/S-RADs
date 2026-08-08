@@ -29,7 +29,7 @@ Phase 2 - Dispatch ✅
 
 ### Medium Priority
 
-- [ ] Photo upload (Cloudflare R2) 0.3.6
+- [x] Photo upload (Cloudflare R2) 0.3.6
     0.3.6 Photo Upload
 
         Backend
@@ -39,10 +39,10 @@ Phase 2 - Dispatch ✅
         ✓ Retrieval API
 
         Frontend
-        □ Reservation photo panel
-        □ Upload UI
-        □ Gallery
-        □ Image viewer
+        ✓ Reservation photo panel
+        ✓ Upload UI
+        ✓ Gallery
+        ✓ Image viewer
 - [ ] Square integration 0.3.7
 - [ ] Email confirmations 0.3.8
 - [ ] Archive completed shuttles -  0.3.9
