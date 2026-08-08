@@ -154,7 +154,7 @@ export function renderReservations() {
 	const reservations = getFilteredReservations();
 	const table = document.getElementById("reservations-table");
 	if (!reservations.length) {
-		table.innerHTML = '<tr><td colspan="10">No matching reservations.</td></tr>';
+		table.innerHTML = '<tr><td colspan="11">No matching reservations.</td></tr>';
 		return;
 	}
 
@@ -170,10 +170,19 @@ export function renderReservations() {
 			<td><select class="status-select ${getStatusClass(r.status)}" data-id="${r.id}">${statusOptions(r.status)}</select></td>
 			<td class="elapsed-time ${getElapsedClass(r.status)}">${formatElapsedTime(r.started_at, r.completed_at, r.status)}</td>
 			<td><div class="payment-method">${r.payment_method || "Not selected"}</div><select class="payment-select ${getPaymentClass(r.payment_status)}" data-id="${r.id}">${paymentOptions(r.payment_status)}</select></td>
-		</tr>`).join("");
+		<td>
+	<button
+		type="button"
+		class="photo-button"
+		data-reservation-id="${r.id}"
+	>
+		Photos
+	</button>
+</td>
+			</tr>`).join("");
 	attachReservationListeners();
 }
 
 export function renderDashboardError(message) {
-	document.getElementById("reservations-table").innerHTML = `<tr><td colspan="10">${message}</td></tr>`;
+	document.getElementById("reservations-table").innerHTML = `<tr><td colspan="11">${message}</td></tr>`;
 }

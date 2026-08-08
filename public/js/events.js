@@ -26,6 +26,14 @@ export function attachReservationListeners() {
 			const row = this.closest("tr");
 			saveReservation(Number(this.dataset.id), this.value, row.querySelector(".status-select").value, row.querySelector(".payment-select").value);
 		});
+		document.querySelectorAll(".photo-button").forEach((button) => {
+	button.addEventListener("click", function () {
+		const reservationId = Number(this.dataset.reservationId);
+
+		console.log("Open photos for reservation:", reservationId);
+		alert(`Photos for reservation ${reservationId}`);
+	});
+});
 	});
 
 	document.querySelectorAll(".status-select").forEach((select) => {
@@ -55,4 +63,5 @@ export function attachFilterListeners() {
 		document.getElementById("payment-filter").value = "";
 		renderReservations();
 	});
+
 }
