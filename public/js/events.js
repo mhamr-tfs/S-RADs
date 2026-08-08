@@ -20,33 +20,6 @@ async function saveReservation(id, driver, status, paymentStatus) {
 	}
 }
 
-export function attachReservationListeners() {
-	document.querySelectorAll(".driver-select").forEach((select) => {
-		select.addEventListener("change", function () {
-			const row = this.closest("tr");
-			saveReservation(Number(this.dataset.id), this.value, row.querySelector(".status-select").value, row.querySelector(".payment-select").value);
-		});
-		document.querySelectorAll(".photo-button").forEach((button) => {
-	button.addEventListener("click", function () {
-		const reservationId = Number(this.dataset.reservationId);
-
-		const modal = document.getElementById("photo-modal");
-		const reservationDisplay =
-			document.getElementById("photo-reservation-id");
-
-		reservationDisplay.textContent = reservationId;
-modal.dataset.reservationId = reservationId;
-modal.hidden = false;
-
-loadReservationPhotos(reservationId);
-
-if (photoModalClose) {
-	photoModalClose.onclick = () => {
-		document.getElementById("photo-modal").hidden = true;
-	};
-}
-	});
-});
 async function loadReservationPhotos(reservationId) {
 	const gallery = document.getElementById("photo-gallery");
 
@@ -74,19 +47,84 @@ async function loadReservationPhotos(reservationId) {
 				>
 			`)
 			.join("");
-
 	} catch (error) {
 		console.error("Photo load failed:", error);
 		gallery.innerHTML = "<p>Unable to load photos.</p>";
 	}
 }
+
+async function uploadReservationPhoto(event) {
+	event.preventDefault();
+
+	const modal = document.getElementById("photo-modal");
+	const fileInput = document.getElementById("photo-file");
+	const status = document.getElementById("photo-upload-status");
+
+	const reservationId = modal.dataset.reservationId;
+	const photo = fileInput.files[0];
+
+	if (!reservationId) {
+		status.textContent = "No reservation selected.";
+		return;
+	}
+
+	if (!photo) {
+		status.textContent = "Choose a photo first.";
+		return;
+	}
+
+	const formData = new FormData();
+	formData.append("reservation_id", reservationId);
+	formData.append("photo", photo);
+
+	status.textContent = "Uploading...";
+
+	try {
+		const response = await fetch("/api/photos/upload", {
+			method: "POST",
+			body: formData,
+		});
+
+		const data = await response.json();
+
+		if (!response.ok || !data.success) {
+			throw new Error(data.message || "Photo upload failed.");
+		}
+
+		status.textContent = "Photo uploaded successfully.";
+		fileInput.value = "";
+
+		await loadReservationPhotos(reservationId);
+	} catch (error) {
+		console.error("Photo upload failed:", error);
+		status.textContent = "Photo upload failed.";
+	}
+}
+
+export function attachReservationListeners() {
+	document.querySelectorAll(".driver-select").forEach((select) => {
+		select.addEventListener("change", function () {
+			const row = this.closest("tr");
+			saveReservation(
+				Number(this.dataset.id),
+				this.value,
+				row.querySelector(".status-select").value,
+				row.querySelector(".payment-select").value
+			);
+		});
 	});
 
 	document.querySelectorAll(".status-select").forEach((select) => {
 		select.addEventListener("change", function () {
 			const row = this.closest("tr");
 			this.className = "status-select " + getStatusClass(this.value);
-			saveReservation(Number(this.dataset.id), row.querySelector(".driver-select").value, this.value, row.querySelector(".payment-select").value);
+
+			saveReservation(
+				Number(this.dataset.id),
+				row.querySelector(".driver-select").value,
+				this.value,
+				row.querySelector(".payment-select").value
+			);
 		});
 	});
 
@@ -94,20 +132,66 @@ async function loadReservationPhotos(reservationId) {
 		select.addEventListener("change", function () {
 			const row = this.closest("tr");
 			this.className = "payment-select " + getPaymentClass(this.value);
-			saveReservation(Number(this.dataset.id), row.querySelector(".driver-select").value, row.querySelector(".status-select").value, this.value);
+
+			saveReservation(
+				Number(this.dataset.id),
+				row.querySelector(".driver-select").value,
+				row.querySelector(".status-select").value,
+				this.value
+			);
 		});
 	});
+
+	document.querySelectorAll(".photo-button").forEach((button) => {
+		button.addEventListener("click", function () {
+			const reservationId = Number(this.dataset.reservationId);
+
+			const modal = document.getElementById("photo-modal");
+			const reservationDisplay =
+				document.getElementById("photo-reservation-id");
+
+			reservationDisplay.textContent = reservationId;
+			modal.dataset.reservationId = reservationId;
+			modal.hidden = false;
+
+			loadReservationPhotos(reservationId);
+		});
+	});
+
+	const photoModalClose =
+		document.getElementById("photo-modal-close");
+
+	if (photoModalClose) {
+		photoModalClose.onclick = () => {
+			document.getElementById("photo-modal").hidden = true;
+		};
+	}
 }
 
 export function attachFilterListeners() {
-	document.getElementById("reservation-search").addEventListener("input", renderReservations);
-	document.getElementById("status-filter").addEventListener("change", renderReservations);
-	document.getElementById("payment-filter").addEventListener("change", renderReservations);
-	document.getElementById("clear-filters").addEventListener("click", () => {
-		document.getElementById("reservation-search").value = "";
-		document.getElementById("status-filter").value = "";
-		document.getElementById("payment-filter").value = "";
-		renderReservations();
-	});
+	document
+		.getElementById("photo-upload-form")
+		.addEventListener("submit", uploadReservationPhoto);
 
+	document
+		.getElementById("reservation-search")
+		.addEventListener("input", renderReservations);
+
+	document
+		.getElementById("status-filter")
+		.addEventListener("change", renderReservations);
+
+	document
+		.getElementById("payment-filter")
+		.addEventListener("change", renderReservations);
+
+	document
+		.getElementById("clear-filters")
+		.addEventListener("click", () => {
+			document.getElementById("reservation-search").value = "";
+			document.getElementById("status-filter").value = "";
+			document.getElementById("payment-filter").value = "";
+
+			renderReservations();
+		});
 }
