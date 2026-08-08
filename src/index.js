@@ -790,25 +790,16 @@ if (
 				"Content-Type": "application/json",
 			},
 			body: JSON.stringify({
-	idempotency_key: crypto.randomUUID(),
-
-	order: {
-		location_id: env.SQUARE_LOCATION_ID,
-
-		reference_id: `s-rads-reservation-${reservationId}`,
-
-		line_items: [
-			{
-				quantity: "1",
-				catalog_object_id:
-					"YZ3QOTA7X4KBTULRILR2WLD5",
-			},
-		],
-	},
-
-	payment_note:
-		`S-RADs reservation #${reservationId}`,
-}),
+				idempotency_key: crypto.randomUUID(),
+				quick_pay: {
+					name: `S-RADs Shuttle Reservation #${reservationId}`,
+					price_money: {
+						amount,
+						currency: "USD",
+					},
+					location_id: env.SQUARE_LOCATION_ID,
+				},
+			}),
 		}
 	);
 
@@ -834,65 +825,7 @@ if (
 		url: data.payment_link?.url,
 	});
 }
-// ======================================================
-// Square Sandbox catalog test
-// Temporary development endpoint
-// ======================================================
-if (
-	request.method === "GET" &&
-	url.pathname === "/api/square/catalog"
-) {
-	const squareResponse = await fetch(
-		"https://connect.squareupsandbox.com/v2/catalog/list?types=ITEM",
-		{
-			headers: {
-				Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
-				"Square-Version": "2026-07-15",
-				"Content-Type": "application/json",
-			},
-		}
-	);
 
-	const data = await squareResponse.json();
-
-	if (!squareResponse.ok) {
-		return Response.json(
-			{
-				success: false,
-				status: squareResponse.status,
-				square: data,
-			},
-			{ status: squareResponse.status }
-		);
-	}
-
-	const items = (data.objects || []).map((item) => ({
-		item_id: item.id,
-		name: item.item_data?.name,
-		product_type: item.item_data?.product_type,
-		variations: (item.item_data?.variations || []).map(
-			(variation) => ({
-				variation_id: variation.id,
-				name: variation.item_variation_data?.name,
-				price:
-					variation.item_variation_data?.price_money
-						?.amount,
-				currency:
-					variation.item_variation_data?.price_money
-						?.currency,
-				pricing_type:
-					variation.item_variation_data
-						?.pricing_type,
-			})
-		),
-	}));
-
-	return Response.json({
-		success: true,
-		count: items.length,
-		items,
-	});
-}
 		return new Response("Not Found", { status: 404 });
 	},
 };
