@@ -30,10 +30,56 @@ export function attachReservationListeners() {
 	button.addEventListener("click", function () {
 		const reservationId = Number(this.dataset.reservationId);
 
-		console.log("Open photos for reservation:", reservationId);
-		alert(`Photos for reservation ${reservationId}`);
+		const modal = document.getElementById("photo-modal");
+		const reservationDisplay =
+			document.getElementById("photo-reservation-id");
+
+		reservationDisplay.textContent = reservationId;
+modal.dataset.reservationId = reservationId;
+modal.hidden = false;
+
+loadReservationPhotos(reservationId);
+
+if (photoModalClose) {
+	photoModalClose.onclick = () => {
+		document.getElementById("photo-modal").hidden = true;
+	};
+}
 	});
 });
+async function loadReservationPhotos(reservationId) {
+	const gallery = document.getElementById("photo-gallery");
+
+	gallery.innerHTML = "<p>Loading photos...</p>";
+
+	try {
+		const response = await fetch(`/api/photos/${reservationId}`);
+		const data = await response.json();
+
+		if (!response.ok || !data.success) {
+			throw new Error(data.message || "Unable to load photos.");
+		}
+
+		if (data.photos.length === 0) {
+			gallery.innerHTML = "<p>No photos uploaded yet.</p>";
+			return;
+		}
+
+		gallery.innerHTML = data.photos
+			.map((photo) => `
+				<img
+					src="/api/photos/file/${photo.id}"
+					alt="Reservation photo"
+					class="reservation-photo-thumbnail"
+				>
+			`)
+			.join("");
+
+	} catch (error) {
+		console.error("Photo load failed:", error);
+		gallery.innerHTML = "<p>Unable to load photos.</p>";
+	}
+}
 	});
 
 	document.querySelectorAll(".status-select").forEach((select) => {
