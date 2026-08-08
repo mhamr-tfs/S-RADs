@@ -625,3 +625,174 @@
 		text-align: center;
 	}
 }
+/* =====================================================
+   Reservation Photos
+   ===================================================== */
+
+.photo-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 24px;
+	background: rgba(0, 0, 0, 0.55);
+	box-sizing: border-box;
+}
+
+.photo-modal[hidden] {
+	display: none;
+}
+
+.photo-modal-content {
+	position: relative;
+
+	width: min(92vw, 900px);
+	max-height: 90vh;
+	overflow-y: auto;
+
+	background: white;
+	border-radius: 12px;
+	padding: 28px;
+
+	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+#photo-modal-close {
+	position: absolute;
+	top: 14px;
+	right: 14px;
+
+	width: 42px;
+	height: 42px;
+
+	padding: 0;
+	border-radius: 50%;
+
+	font-size: 24px;
+	line-height: 1;
+}
+
+#photo-gallery {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 16px;
+
+	margin: 20px 0;
+}
+
+.reservation-photo-thumbnail {
+	display: block;
+
+	width: 100%;
+	height: 180px;
+
+	object-fit: cover;
+
+	border: 1px solid #ccc;
+	border-radius: 8px;
+
+	cursor: pointer;
+}
+
+#photo-upload-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+
+	padding-top: 18px;
+	border-top: 1px solid #ddd;
+}
+
+#photo-file {
+	flex: 1;
+	min-width: 220px;
+}
+
+#photo-upload-status {
+	min-height: 24px;
+	font-weight: bold;
+}
+
+@media (max-width: 600px) {
+	.photo-modal {
+		padding: 10px;
+		align-items: flex-start;
+	}
+
+	.photo-modal-content {
+		width: 100%;
+		max-height: 96vh;
+		padding: 22px 16px;
+	}
+
+	#photo-gallery {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.reservation-photo-thumbnail {
+		height: 140px;
+	}
+
+	#photo-upload-form {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	#photo-file,
+	#photo-upload-form button {
+		width: 100%;
+	}
+}
+/* =====================================================
+   Full Size Photo Viewer
+   ===================================================== */
+
+.photo-viewer {
+	position: fixed;
+	inset: 0;
+	z-index: 1100;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	padding: 24px;
+	background: rgba(0, 0, 0, 0.88);
+	box-sizing: border-box;
+}
+
+.photo-viewer[hidden] {
+	display: none;
+}
+
+#photo-viewer-image {
+	max-width: 95vw;
+	max-height: 92vh;
+
+	object-fit: contain;
+
+	border-radius: 8px;
+	background: white;
+}
+
+#photo-viewer-close {
+	position: fixed;
+	top: 18px;
+	right: 18px;
+
+	width: 46px;
+	height: 46px;
+
+	padding: 0;
+	border-radius: 50%;
+
+	font-size: 26px;
+	line-height: 1;
+
+	z-index: 1101;
+}
