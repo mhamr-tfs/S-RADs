@@ -269,13 +269,56 @@ document
 					}
 				}
 
-				message.textContent =
-					vehiclePhoto &&
-					vehiclePhoto.size > 0
-						? "Reservation and vehicle photo submitted successfully."
-						: "Reservation submitted successfully.";
+				const shouldUseSquare =
+	reservation.payment_method === "Square" &&
+	data.reservation_id &&
+	!(
+		reservation.is_two_rivers_guest === "Yes" &&
+		reservation.two_rivers_direct_booking === "Yes"
+	);
 
-				form.reset();
+if (shouldUseSquare) {
+	message.textContent =
+		"Reservation created. Redirecting to secure Square checkout...";
+
+	const paymentResponse = await fetch(
+		"/api/square/payment-link",
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				reservation_id: data.reservation_id,
+			}),
+		}
+	);
+
+	const paymentData =
+		await paymentResponse.json();
+
+	if (
+		!paymentResponse.ok ||
+		!paymentData.success ||
+		!paymentData.url
+	) {
+		throw new Error(
+			paymentData.message ||
+				"Reservation was created, but Square checkout could not be started."
+		);
+	}
+
+	window.location.href = paymentData.url;
+	return;
+}
+
+message.textContent =
+	vehiclePhoto &&
+	vehiclePhoto.size > 0
+		? "Reservation and vehicle photo submitted successfully."
+		: "Reservation submitted successfully.";
+
+form.reset();
 
 				document.getElementById(
 					"license-county-group"
