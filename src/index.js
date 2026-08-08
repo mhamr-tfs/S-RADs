@@ -736,6 +736,7 @@ if (
 			{ status: squareResponse.status }
 		);
 	}
+	
 
 	return Response.json({
 		success: true,
@@ -750,6 +751,9 @@ if (
 // ======================================================
 // Square Sandbox $1 payment-link test
 // Temporary development endpoint
+// ======================================================
+// ======================================================
+// Square Sandbox payment link
 // ======================================================
 if (
 	request.method === "POST" &&
@@ -816,16 +820,102 @@ if (
 		);
 	}
 
+	const squareOrderId =
+		data.payment_link?.order_id;
+
+	if (!squareOrderId) {
+		return Response.json(
+			{
+				success: false,
+				message: "Square did not return an order ID.",
+			},
+			{ status: 502 }
+		);
+	}
+
+	await env.DB.prepare(`
+		UPDATE reservations
+		SET square_order_id = ?
+		WHERE id = ?
+	`)
+	.bind(squareOrderId, reservationId)
+	.run();
+
 	return Response.json({
 		success: true,
 		reservation_id: reservationId,
 		amount,
 		payment_link_id: data.payment_link?.id,
-		order_id: data.payment_link?.order_id,
+		order_id: squareOrderId,
 		url: data.payment_link?.url,
 	});
 }
+//* Temporary tunnel for local development to test Square payment links. Remove before production deployment.
+if (
+	request.method === "POST" &&
+	url.pathname === "/api/square/webhook"
+) {
+	const body = await request.text();
 
+	const squareSignature =
+		request.headers.get(
+			"x-square-hmacsha256-signature"
+		);
+
+	if (!squareSignature) {
+		return new Response(
+			"Missing Square signature",
+			{ status: 403 }
+		);
+	}
+
+	const encoder = new TextEncoder();
+
+	const key = await crypto.subtle.importKey(
+		"raw",
+		encoder.encode(
+			env.SQUARE_WEBHOOK_SIGNATURE_KEY
+		),
+		{
+			name: "HMAC",
+			hash: "SHA-256",
+		},
+		false,
+		["sign"]
+	);
+
+	const signedData =
+		env.SQUARE_WEBHOOK_URL + body;
+
+	const signatureBuffer =
+		await crypto.subtle.sign(
+			"HMAC",
+			key,
+			encoder.encode(signedData)
+		);
+
+	const generatedSignature = btoa(
+		String.fromCharCode(
+			...new Uint8Array(signatureBuffer)
+		)
+	);
+
+	if (generatedSignature !== squareSignature) {
+		console.log("Invalid Square webhook signature");
+
+		return new Response(
+			"Invalid signature",
+			{ status: 403 }
+		);
+	}
+
+	console.log("Verified Square webhook:");
+	console.log(body);
+
+	return new Response("OK", {
+		status: 200,
+	});
+}
 		return new Response("Not Found", { status: 404 });
 	},
 };
