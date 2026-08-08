@@ -909,12 +909,40 @@ if (
 		);
 	}
 
-	console.log("Verified Square webhook:");
-	console.log(body);
+	const event = JSON.parse(body);
 
-	return new Response("OK", {
-		status: 200,
-	});
+if (
+	event.type === "payment.updated" &&
+	event.data?.object?.payment?.status === "COMPLETED"
+) {
+	const payment = event.data.object.payment;
+	const squareOrderId = payment.order_id;
+
+	if (squareOrderId) {
+		const now = new Date().toISOString();
+
+		const result = await env.DB.prepare(`
+			UPDATE reservations
+			SET
+				payment_status = 'Paid',
+				paid_at = COALESCE(paid_at, ?)
+			WHERE square_order_id = ?
+		`)
+		.bind(now, squareOrderId)
+		.run();
+
+		console.log(
+			"Square payment completed:",
+			squareOrderId,
+			"reservations updated:",
+			result.meta.changes
+		);
+	}
+}
+
+return new Response("OK", {
+	status: 200,
+});
 }
 		return new Response("Not Found", { status: 404 });
 	},
