@@ -944,6 +944,52 @@ return new Response("OK", {
 	status: 200,
 });
 }
+// ======================================================
+// Resend email connectivity test
+// Temporary development endpoint
+// ======================================================
+if (
+	request.method === "POST" &&
+	url.pathname === "/api/email/test"
+) {
+	const resendResponse = await fetch(
+		"https://api.resend.com/emails",
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${env.RESEND_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+	from: "Thermopolis Fly Shop Shuttles <reservations@mail.thermopolisflyshop.com>",
+	to: ["m_hamrick@live.com"],
+	subject: "S-RADs email test",
+	html: `
+		<h2>S-RADs Email Test</h2>
+		<p>If you're reading this, the Worker can send email through Resend.</p>
+	`,
+}),
+		}
+	);
+
+	const data = await resendResponse.json();
+
+	if (!resendResponse.ok) {
+		return Response.json(
+			{
+				success: false,
+				status: resendResponse.status,
+				resend: data,
+			},
+			{ status: resendResponse.status }
+		);
+	}
+
+	return Response.json({
+		success: true,
+		email_id: data.id,
+	});
+}
 		return new Response("Not Found", { status: 404 });
 	},
 };
