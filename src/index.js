@@ -3,7 +3,93 @@ import {
     handlePhotoList,
     handlePhotoFile
 } from "./photos/photo-api.js";
+// ======================================================
+// Reservation confirmation email
+// ======================================================
+async function sendReservationConfirmation(
+	env,
+	reservation,
+	reservationId,
+	paymentStatus
+) {
+	const resendResponse = await fetch(
+		"https://api.resend.com/emails",
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${env.RESEND_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				from: "Thermopolis Fly Shop Shuttles <reservations@mail.thermopolisflyshop.com>",
+				reply_to: "thermopolisflyshop@gmail.com",
+				to: [reservation.email],
+				subject: `Shuttle Reservation Confirmation #${reservationId}`,
+				html: `
+					<h2>Thermopolis Fly Shop Shuttle Reservation</h2>
 
+					<p>
+						Thank you, ${reservation.first_name}.
+						Your shuttle reservation has been received.
+					</p>
+
+					<p>
+						<strong>Reservation:</strong> #${reservationId}<br>
+						<strong>Date:</strong> ${reservation.shuttle_date}<br>
+						<strong>Expected Finish Time:</strong> ${reservation.expected_takeout_time}<br>
+						<strong>Route:</strong> ${reservation.launch_site} → ${reservation.takeout_site}<br>
+						<strong>Price:</strong> $${Number(reservation.price || 0).toFixed(2)}<br>
+						<strong>Payment Status:</strong> ${paymentStatus}
+					</p>
+
+					<h3>Vehicle</h3>
+
+					<p>
+						${reservation.vehicle_year || ""}
+						${reservation.vehicle_make || ""}
+						${reservation.vehicle_model || ""}
+						${reservation.vehicle_color ? `— ${reservation.vehicle_color}` : ""}
+						<br>
+						<strong>License Plate:</strong>
+						${reservation.license_plate || "Not provided"}
+						${reservation.license_state ? ` (${reservation.license_state})` : ""}
+					</p>
+
+					<h3>Keys</h3>
+
+					<p>
+						${reservation.key_location || "No key location provided"}
+						${reservation.key_location_other ? ` — ${reservation.key_location_other}` : ""}
+					</p>
+
+					<p>
+						If anything changes, reply to this email or call Thermopolis Fly Shop at
+						<strong>(307) 864-3499</strong>.
+					</p>
+
+					<p>
+						Thank you,<br>
+						Thermopolis Fly Shop
+					</p>
+				`,
+			}),
+		}
+	);
+
+	const data = await resendResponse.json();
+
+	if (!resendResponse.ok) {
+		throw new Error(
+			data.message ||
+			"Reservation confirmation email failed."
+		);
+	}
+
+	return data;
+}
+//======================================================
+//End reservation confirmation email
+//=====================================================
 export default {
 	
 	async fetch(request, env, ctx) {
@@ -18,6 +104,7 @@ export default {
 				database: env.DB ? "Connected" : "Not connected",
 			});
 		}
+		
 
 		if (url.pathname === "/api/reservations" && request.method === "GET") {
 			const result = await env.DB.prepare(
@@ -99,11 +186,25 @@ export default {
 				paymentReason,
 				reservation.cash_location
 			).run();
+const reservationId = result.meta.last_row_id;
 
+try {
+	await sendReservationConfirmation(
+		env,
+		reservation,
+		reservationId,
+		paymentStatus
+	);
+} catch (error) {
+	console.error(
+		"Reservation confirmation email failed:",
+		error
+	);
+}
 			return Response.json({
 				success: true,
 				message: "Reservation created",
-				reservation_id: result.meta.last_row_id,
+				reservation_id: reservationId,
 			});
 		}
 
@@ -749,10 +850,6 @@ if (
 	});
 }
 // ======================================================
-// Square Sandbox $1 payment-link test
-// Temporary development endpoint
-// ======================================================
-// ======================================================
 // Square Sandbox payment link
 // ======================================================
 if (
@@ -962,6 +1059,7 @@ if (
 			},
 			body: JSON.stringify({
 	from: "Thermopolis Fly Shop Shuttles <reservations@mail.thermopolisflyshop.com>",
+	reply_to: "thermopolisflyshop@gmail.com",
 	to: ["m_hamrick@live.com"],
 	subject: "S-RADs email test",
 	html: `
