@@ -406,15 +406,98 @@ export function attachFilterListeners() {
 						Number(checkbox.value)
 				);
 
-			console.log(
-				"Completion email reservation:",
-				reservationId
+			sendCompletionEmailButton.addEventListener(
+	"click",
+	async () => {
+		const modal =
+			document.getElementById(
+				"photo-modal"
 			);
 
-			console.log(
-				"Selected completion photos:",
-				selectedPhotoIds
+		const selectionStatus =
+			document.getElementById(
+				"photo-selection-status"
 			);
+
+		const reservationId =
+			Number(
+				modal.dataset.reservationId
+			);
+
+		const selectedPhotoIds =
+			Array.from(
+				document.querySelectorAll(
+					".completion-photo-checkbox:checked"
+				)
+			).map(
+				(checkbox) =>
+					Number(checkbox.value)
+			);
+
+		if (selectedPhotoIds.length === 0) {
+			selectionStatus.textContent =
+				"Select at least one photo.";
+			return;
+		}
+
+		sendCompletionEmailButton.disabled = true;
+		selectionStatus.textContent =
+			"Sending completion email...";
+
+		try {
+			const response = await fetch(
+				"/api/email/completion",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type":
+							"application/json",
+					},
+					body: JSON.stringify({
+						reservation_id:
+							reservationId,
+						photo_ids:
+							selectedPhotoIds,
+					}),
+				}
+			);
+
+			const data =
+				await response.json();
+
+			if (!response.ok || !data.success) {
+				throw new Error(
+					data.message ||
+					"Completion email failed."
+				);
+			}
+
+			selectionStatus.textContent =
+				"Completion email sent successfully.";
+
+			document
+				.querySelectorAll(
+					".completion-photo-checkbox"
+				)
+				.forEach((checkbox) => {
+					checkbox.checked = false;
+				});
+
+		} catch (error) {
+			console.error(
+				"Completion email failed:",
+				error
+			);
+
+			selectionStatus.textContent =
+				error.message ||
+				"Completion email failed.";
+
+			sendCompletionEmailButton.disabled =
+				false;
+		}
+	}
+);
 		}
 	);
 
