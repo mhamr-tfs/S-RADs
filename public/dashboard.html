@@ -87,22 +87,36 @@
 		</p>
 
 		<div id="photo-gallery">
-			<p>No photos loaded.</p>
-		</div>
+	<p>No photos loaded.</p>
+</div>
 
-		<form id="photo-upload-form">
-			<input
-				id="photo-file"
-				name="photo"
-				type="file"
-				accept="image/*"
-				required
-			/>
+<div id="photo-selection-controls">
+	<p id="photo-selection-status">
+		0 photos selected
+	</p>
 
-			<button type="submit">
-				Upload Photo
-			</button>
-		</form>
+	<button
+		id="send-completion-email"
+		type="button"
+		disabled
+	>
+		Send Completion Email
+	</button>
+</div>
+
+<form id="photo-upload-form">
+	<input
+		id="photo-file"
+		name="photo"
+		type="file"
+		accept="image/*"
+		required
+	/>
+
+	<button type="submit">
+		Upload Photo
+	</button>
+</form>
 
 		<p id="photo-upload-status" aria-live="polite"></p>
 	</div>

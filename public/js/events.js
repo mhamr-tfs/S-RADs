@@ -32,7 +32,18 @@ async function saveReservation(id, driver, status, paymentStatus) {
 async function loadReservationPhotos(reservationId) {
 	const gallery = document.getElementById("photo-gallery");
 
+	const selectionStatus = document.getElementById(
+		"photo-selection-status"
+	);
+
+	const sendButton = document.getElementById(
+		"send-completion-email"
+	);
+
 	gallery.innerHTML = "<p>Loading photos...</p>";
+
+	selectionStatus.textContent = "0 photos selected";
+	sendButton.disabled = true;
 
 	try {
 		const response = await fetch(
@@ -56,12 +67,23 @@ async function loadReservationPhotos(reservationId) {
 		gallery.innerHTML = data.photos
 			.map(
 				(photo) => `
-					<img
-						src="/api/photos/file/${photo.id}"
-						alt="Reservation photo"
-						class="reservation-photo-thumbnail"
-						data-full-src="/api/photos/file/${photo.id}"
-					>
+					<div class="reservation-photo-option">
+						<img
+							src="/api/photos/file/${photo.id}"
+							alt="Reservation photo"
+							class="reservation-photo-thumbnail"
+							data-full-src="/api/photos/file/${photo.id}"
+						>
+
+						<label>
+							<input
+								type="checkbox"
+								class="completion-photo-checkbox"
+								value="${photo.id}"
+							>
+							Send to customer
+						</label>
+					</div>
 				`
 			)
 			.join("");
@@ -88,11 +110,42 @@ async function loadReservationPhotos(reservationId) {
 					viewer.hidden = false;
 				});
 			});
+
+		gallery
+			.querySelectorAll(
+				".completion-photo-checkbox"
+			)
+			.forEach((checkbox) => {
+				checkbox.addEventListener(
+					"change",
+					() => {
+						const selected =
+							gallery.querySelectorAll(
+								".completion-photo-checkbox:checked"
+							);
+
+						const count = selected.length;
+
+						selectionStatus.textContent =
+							count === 1
+								? "1 photo selected"
+								: `${count} photos selected`;
+
+						sendButton.disabled =
+							count === 0;
+					}
+				);
+			});
 	} catch (error) {
 		console.error("Photo load failed:", error);
 
 		gallery.innerHTML =
 			"<p>Unable to load photos.</p>";
+
+		selectionStatus.textContent =
+			"0 photos selected";
+
+		sendButton.disabled = true;
 	}
 }
 
@@ -325,6 +378,46 @@ export function attachFilterListeners() {
 			renderReservations();
 		});
 
+	const sendCompletionEmailButton =
+		document.getElementById(
+			"send-completion-email"
+		);
+
+	sendCompletionEmailButton.addEventListener(
+		"click",
+		() => {
+			const modal =
+				document.getElementById(
+					"photo-modal"
+				);
+
+			const reservationId =
+				Number(
+					modal.dataset.reservationId
+				);
+
+			const selectedPhotoIds =
+				Array.from(
+					document.querySelectorAll(
+						".completion-photo-checkbox:checked"
+					)
+				).map(
+					(checkbox) =>
+						Number(checkbox.value)
+				);
+
+			console.log(
+				"Completion email reservation:",
+				reservationId
+			);
+
+			console.log(
+				"Selected completion photos:",
+				selectedPhotoIds
+			);
+		}
+	);
+
 	const photoViewer =
 		document.getElementById("photo-viewer");
 
@@ -332,28 +425,4 @@ export function attachFilterListeners() {
 		document.getElementById(
 			"photo-viewer-close"
 		);
-
-	const photoViewerImage =
-		document.getElementById(
-			"photo-viewer-image"
-		);
-
-	function closePhotoViewer() {
-		photoViewer.hidden = true;
-		photoViewerImage.src = "";
-	}
-
-	photoViewerClose.addEventListener(
-		"click",
-		closePhotoViewer
-	);
-
-	photoViewer.addEventListener(
-		"click",
-		(event) => {
-			if (event.target === photoViewer) {
-				closePhotoViewer();
-			}
-		}
-	);
 }

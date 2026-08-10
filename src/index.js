@@ -90,6 +90,143 @@ async function sendReservationConfirmation(
 //======================================================
 //End reservation confirmation email
 //=====================================================
+// ======================================================
+// Convert ArrayBuffer to Base64
+// ======================================================
+function arrayBufferToBase64(buffer) {
+	const bytes = new Uint8Array(buffer);
+	let binary = "";
+
+	const chunkSize = 0x8000;
+
+	for (let i = 0; i < bytes.length; i += chunkSize) {
+		const chunk = bytes.subarray(
+			i,
+			Math.min(i + chunkSize, bytes.length)
+		);
+
+		binary += String.fromCharCode(...chunk);
+	}
+
+	return btoa(binary);
+}
+
+
+// ======================================================
+// Completion email with selected proof photos
+// ======================================================
+async function sendCompletionEmail(
+	env,
+	reservation,
+	photos
+) {
+	const attachments = [];
+
+	for (const photo of photos) {
+		const object =
+			await env.binding_PHOTOS_BUCKET.get(
+				photo.storage_key
+			);
+
+		if (!object) {
+			throw new Error(
+				`Photo file missing: ${photo.id}`
+			);
+		}
+
+		const buffer = await object.arrayBuffer();
+
+		attachments.push({
+			content: arrayBufferToBase64(buffer),
+			filename:
+				photo.file_name ||
+				`reservation-photo-${photo.id}.jpg`,
+		});
+	}
+
+	const resendResponse = await fetch(
+		"https://api.resend.com/emails",
+		{
+			method: "POST",
+			headers: {
+				Authorization:
+					`Bearer ${env.RESEND_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				from:
+					"Thermopolis Fly Shop Shuttles <reservations@mail.thermopolisflyshop.com>",
+
+				reply_to:
+					"thermopolisflyshop@gmail.com",
+
+				to: [reservation.email],
+
+				subject:
+					`Your vehicle has been moved — Reservation #${reservation.id}`,
+
+				html: `
+					<h2>Your Shuttle Is Complete</h2>
+
+					<p>
+						Hi ${reservation.first_name},
+					</p>
+
+					<p>
+						Your vehicle has been moved for shuttle
+						reservation #${reservation.id}.
+					</p>
+
+					<p>
+						<strong>Route:</strong>
+						${reservation.launch_site}
+						→
+						${reservation.takeout_site}
+						<br>
+
+						<strong>Vehicle:</strong>
+						${reservation.vehicle_year || ""}
+						${reservation.vehicle_make || ""}
+						${reservation.vehicle_model || ""}
+						${reservation.vehicle_color
+							? `— ${reservation.vehicle_color}`
+							: ""}
+					</p>
+
+					<p>
+						We've attached the selected completion
+						${photos.length === 1 ? "photo" : "photos"}
+						for your records.
+					</p>
+
+					<p>
+						If you have any questions, reply to this
+						email or call Thermopolis Fly Shop at
+						<strong>(307) 864-3499</strong>.
+					</p>
+
+					<p>
+						Thank you,<br>
+						Thermopolis Fly Shop
+					</p>
+				`,
+
+				attachments,
+			}),
+		}
+	);
+
+	const data = await resendResponse.json();
+
+	if (!resendResponse.ok) {
+		throw new Error(
+			data.message ||
+			"Completion email failed."
+		);
+	}
+
+	return data;
+}
 export default {
 	
 	async fetch(request, env, ctx) {
@@ -1040,6 +1177,162 @@ if (
 return new Response("OK", {
 	status: 200,
 });
+}
+// ======================================================
+// Send shuttle completion email
+// ======================================================
+if (
+	request.method === "POST" &&
+	url.pathname === "/api/email/completion"
+) {
+	const body = await request.json();
+
+	const reservationId =
+		Number(body.reservation_id);
+
+	const photoIds =
+		Array.isArray(body.photo_ids)
+			? body.photo_ids.map(Number)
+			: [];
+
+	if (!reservationId) {
+		return Response.json(
+			{
+				success: false,
+				message: "Missing reservation ID.",
+			},
+			{ status: 400 }
+		);
+	}
+
+	if (photoIds.length === 0) {
+		return Response.json(
+			{
+				success: false,
+				message:
+					"Select at least one completion photo.",
+			},
+			{ status: 400 }
+		);
+	}
+
+	const reservation =
+		await env.DB.prepare(`
+			SELECT
+				id,
+				first_name,
+				last_name,
+				email,
+				launch_site,
+				takeout_site,
+				vehicle_year,
+				vehicle_make,
+				vehicle_model,
+				vehicle_color,
+				status
+			FROM reservations
+			WHERE id = ?
+		`)
+		.bind(reservationId)
+		.first();
+
+	if (!reservation) {
+		return Response.json(
+			{
+				success: false,
+				message: "Reservation not found.",
+			},
+			{ status: 404 }
+		);
+	}
+
+	if (reservation.status !== "Completed") {
+		return Response.json(
+			{
+				success: false,
+				message:
+					"Reservation must be completed before sending the completion email.",
+			},
+			{ status: 409 }
+		);
+	}
+
+	if (!reservation.email) {
+		return Response.json(
+			{
+				success: false,
+				message:
+					"Reservation has no customer email address.",
+			},
+			{ status: 400 }
+		);
+	}
+
+	const placeholders =
+		photoIds.map(() => "?").join(", ");
+
+	const photosResult =
+		await env.DB.prepare(`
+			SELECT
+				id,
+				reservation_id,
+				file_name,
+				storage_key,
+				content_type
+			FROM photos
+			WHERE reservation_id = ?
+				AND id IN (${placeholders})
+		`)
+		.bind(
+			reservationId,
+			...photoIds
+		)
+		.all();
+
+	const photos = photosResult.results;
+
+	if (photos.length !== photoIds.length) {
+		return Response.json(
+			{
+				success: false,
+				message:
+					"One or more selected photos do not belong to this reservation.",
+			},
+			{ status: 400 }
+		);
+	}
+
+	try {
+		const email =
+			await sendCompletionEmail(
+				env,
+				reservation,
+				photos
+			);
+
+		return Response.json({
+			success: true,
+			message:
+				"Completion email sent successfully.",
+			email_id: email.id,
+			reservation_id: reservationId,
+			photo_ids: photoIds,
+		});
+	} catch (error) {
+		console.error(
+			"Completion email failed:",
+			error
+		);
+
+		return Response.json(
+			{
+				success: false,
+				message:
+					"Completion email could not be sent.",
+			},
+			{ status: 502 }
+		);
+	}
 }
 // ======================================================
 // Resend email connectivity test
