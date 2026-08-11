@@ -64,6 +64,40 @@ export default {
 
 	return Response.json(reservations);
 }
+if (
+	url.pathname === "/api/reservations" &&
+	request.method === "POST"
+) {
+	const reservation = await request.json();
+
+	const {
+		reservationId,
+		paymentStatus
+	} = await createReservation(
+		env,
+		reservation
+	);
+
+	try {
+		await sendReservationConfirmation(
+			env,
+			reservation,
+			reservationId,
+			paymentStatus
+		);
+	} catch (error) {
+		console.error(
+			"Reservation confirmation email failed:",
+			error
+		);
+	}
+
+	return Response.json({
+		success: true,
+		message: "Reservation created",
+		reservation_id: reservationId,
+	});
+}
 		if (
 	url.pathname === "/api/reservations" &&
 	request.method === "PATCH"
