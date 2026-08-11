@@ -158,7 +158,7 @@ document
 		"submit",
 		async function (event) {
 			event.preventDefault();
-
+			console.log("S-RADs submit handler fired");
 			const form = event.target;
 			const formData =
 				new FormData(form);
