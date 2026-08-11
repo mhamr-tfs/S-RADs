@@ -43,11 +43,13 @@ Phase 2 - Dispatch ✅
         ✓ Upload UI
         ✓ Gallery
         ✓ Image viewer
-- [ ] Square integration 0.3.7
-- [ ] Email confirmations 0.3.8
-- [ ] Archive completed shuttles -  0.3.9
-- [ ] Cancelled reservation workflow - 0.3.10
-- [ ] Better dashboard filtering 0.3.11
+- [x] Square integration 0.3.7
+- [x] Email confirmations 0.3.8
+- [ ] Subsystem refactor 0.3.9
+- [ ] Limited system release 0.3.10 - Square production cutover/validation
+- [ ] Archive completed shuttles -  0.3.11
+- [ ] Cancelled reservation workflow - 0.3.12
+- [ ] Better dashboard filtering 0.3.13
 
 
 ### Future
