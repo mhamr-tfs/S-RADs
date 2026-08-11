@@ -31,6 +31,10 @@ import {
 	createReservation,
 	updateReservation
 } from "./reservations/reservation-service.js";
+import {
+	getRoutes,
+	getDrivers
+} from "./reference/reference-service.js";
 
 export default {
 	
@@ -70,21 +74,24 @@ export default {
 	return Response.json(result);
 }
 
-		if (url.pathname === "/api/routes" && request.method === "GET") {
-			const result = await env.DB.prepare(
-				"SELECT * FROM routes WHERE active = 'Yes' ORDER BY id"
-			).all();
+		if (
+	url.pathname === "/api/routes" &&
+	request.method === "GET"
+) {
+	const routes =
+		await getRoutes(env);
 
-			return Response.json(result.results);
-		}
+	return Response.json(routes);
+}
+if (
+	url.pathname === "/api/drivers" &&
+	request.method === "GET"
+) {
+	const drivers =
+		await getDrivers(env);
 
-		if (url.pathname === "/api/drivers" && request.method === "GET") {
-			const result = await env.DB.prepare(
-				"SELECT * FROM drivers WHERE active = 'Yes' ORDER BY name"
-			).all();
-
-			return Response.json(result.results);
-		}
+	return Response.json(drivers);
+}
 		// for devloper tools section - works on localhost only
 		if (url.pathname === "/dev-tools") {
 	const assetUrl = new URL(request.url);
