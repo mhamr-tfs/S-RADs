@@ -9,6 +9,13 @@ import {
 	sendCompletionEmail
 } from "./email/email-service.js";
 
+import {
+	getSquareLocation,
+	createSquarePaymentLink,
+	verifySquareWebhook,
+	processSquareWebhook
+} from "./payments/square-service.js";
+
 export default {
 	
 	async fetch(request, env, ctx) {
@@ -733,40 +740,17 @@ if (
 	request.method === "GET" &&
 	url.pathname === "/api/square/test"
 ) {
-	const squareResponse = await fetch(
-		`https://connect.squareupsandbox.com/v2/locations/${env.SQUARE_LOCATION_ID}`,
-		{
-			headers: {
-				Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
-				"Square-Version": "2026-07-15",
-				"Content-Type": "application/json",
-			},
-		}
-	);
+	const result =
+		await getSquareLocation(env);
 
-	const data = await squareResponse.json();
-
-	if (!squareResponse.ok) {
+	if (!result.success) {
 		return Response.json(
-			{
-				success: false,
-				status: squareResponse.status,
-				square: data,
-			},
-			{ status: squareResponse.status }
+			result,
+			{ status: result.status }
 		);
 	}
-	
 
-	return Response.json({
-		success: true,
-		location: {
-			id: data.location?.id,
-			name: data.location?.name,
-			status: data.location?.status,
-			currency: data.location?.currency,
-		},
-	});
+	return Response.json(result);
 }
 // ======================================================
 // Square Sandbox payment link
@@ -776,97 +760,30 @@ if (
 	url.pathname === "/api/square/payment-link"
 ) {
 	const body = await request.json();
-	const reservationId = Number(body.reservation_id);
 
-	const reservation = await env.DB.prepare(`
-		SELECT id, price, payment_status
-		FROM reservations
-		WHERE id = ?
-	`)
-	.bind(reservationId)
-	.first();
+	const reservationId =
+		Number(body.reservation_id);
 
-	if (!reservation) {
+	const result =
+		await createSquarePaymentLink(
+			env,
+			reservationId
+		);
+
+	if (!result.success) {
 		return Response.json(
+			result,
 			{
-				success: false,
-				message: "Reservation not found.",
-			},
-			{ status: 404 }
+				status:
+					result.status || 500,
+			}
 		);
 	}
 
-	const amount = Math.round(
-		Number(reservation.price || 0) * 100
-	);
-
-	const squareResponse = await fetch(
-		"https://connect.squareupsandbox.com/v2/online-checkout/payment-links",
-		{
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${env.SQUARE_ACCESS_TOKEN}`,
-				"Square-Version": "2026-07-15",
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				idempotency_key: crypto.randomUUID(),
-				quick_pay: {
-					name: `S-RADs Shuttle Reservation #${reservationId}`,
-					price_money: {
-						amount,
-						currency: "USD",
-					},
-					location_id: env.SQUARE_LOCATION_ID,
-				},
-			}),
-		}
-	);
-
-	const data = await squareResponse.json();
-
-	if (!squareResponse.ok) {
-		return Response.json(
-			{
-				success: false,
-				status: squareResponse.status,
-				square: data,
-			},
-			{ status: squareResponse.status }
-		);
-	}
-
-	const squareOrderId =
-		data.payment_link?.order_id;
-
-	if (!squareOrderId) {
-		return Response.json(
-			{
-				success: false,
-				message: "Square did not return an order ID.",
-			},
-			{ status: 502 }
-		);
-	}
-
-	await env.DB.prepare(`
-		UPDATE reservations
-		SET square_order_id = ?
-		WHERE id = ?
-	`)
-	.bind(squareOrderId, reservationId)
-	.run();
-
-	return Response.json({
-		success: true,
-		reservation_id: reservationId,
-		amount,
-		payment_link_id: data.payment_link?.id,
-		order_id: squareOrderId,
-		url: data.payment_link?.url,
-	});
+	return Response.json(result);
 }
-//* Temporary tunnel for local development to test Square payment links. Remove before production deployment.
+//* Temporary tunnel for local development to test Square webhooks.
+//* Replace the temporary tunnel URL before production deployment.
 if (
 	request.method === "POST" &&
 	url.pathname === "/api/square/webhook"
@@ -885,39 +802,17 @@ if (
 		);
 	}
 
-	const encoder = new TextEncoder();
-
-	const key = await crypto.subtle.importKey(
-		"raw",
-		encoder.encode(
-			env.SQUARE_WEBHOOK_SIGNATURE_KEY
-		),
-		{
-			name: "HMAC",
-			hash: "SHA-256",
-		},
-		false,
-		["sign"]
-	);
-
-	const signedData =
-		env.SQUARE_WEBHOOK_URL + body;
-
-	const signatureBuffer =
-		await crypto.subtle.sign(
-			"HMAC",
-			key,
-			encoder.encode(signedData)
+	const signatureValid =
+		await verifySquareWebhook(
+			env,
+			body,
+			squareSignature
 		);
 
-	const generatedSignature = btoa(
-		String.fromCharCode(
-			...new Uint8Array(signatureBuffer)
-		)
-	);
-
-	if (generatedSignature !== squareSignature) {
-		console.log("Invalid Square webhook signature");
+	if (!signatureValid) {
+		console.log(
+			"Invalid Square webhook signature"
+		);
 
 		return new Response(
 			"Invalid signature",
@@ -927,38 +822,14 @@ if (
 
 	const event = JSON.parse(body);
 
-if (
-	event.type === "payment.updated" &&
-	event.data?.object?.payment?.status === "COMPLETED"
-) {
-	const payment = event.data.object.payment;
-	const squareOrderId = payment.order_id;
+	await processSquareWebhook(
+		env,
+		event
+	);
 
-	if (squareOrderId) {
-		const now = new Date().toISOString();
-
-		const result = await env.DB.prepare(`
-			UPDATE reservations
-			SET
-				payment_status = 'Paid',
-				paid_at = COALESCE(paid_at, ?)
-			WHERE square_order_id = ?
-		`)
-		.bind(now, squareOrderId)
-		.run();
-
-		console.log(
-			"Square payment completed:",
-			squareOrderId,
-			"reservations updated:",
-			result.meta.changes
-		);
-	}
-}
-
-return new Response("OK", {
-	status: 200,
-});
+	return new Response("OK", {
+		status: 200,
+	});
 }
 // ======================================================
 // Send shuttle completion email
