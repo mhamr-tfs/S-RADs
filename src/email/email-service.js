@@ -290,3 +290,152 @@ export async function sendCompletionEmail(
 
 	return data;
 }
+// ======================================================
+// New reservation staff notification
+// Temporary operational notification until mobile
+// push notifications are available
+// ======================================================
+export async function sendNewReservationNotification(
+	env,
+	reservation,
+	reservationId,
+	paymentStatus
+) {
+	const recipients = (
+		env.SHUTTLE_NOTIFICATION_EMAILS || ""
+	)
+		.split(",")
+		.map((email) => email.trim())
+		.filter(Boolean);
+
+	if (recipients.length === 0) {
+		console.warn(
+			"No shuttle notification email recipients configured."
+		);
+
+		return null;
+	}
+
+	const resendResponse = await fetch(
+		"https://api.resend.com/emails",
+		{
+			method: "POST",
+			headers: {
+				Authorization:
+					`Bearer ${env.RESEND_API_KEY}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				from:
+					"Thermopolis Fly Shop Shuttles <reservations@mail.thermopolisflyshop.com>",
+
+				reply_to:
+					"thermopolisflyshop@gmail.com",
+
+				to: recipients,
+
+				subject:
+					`New Shuttle Reservation #${reservationId}`,
+
+				html: `
+					<h2>New Shuttle Reservation</h2>
+
+					<p>
+						A new shuttle reservation has been received.
+					</p>
+
+					<p>
+						<strong>Reservation:</strong>
+						#${reservationId}
+						<br>
+
+						<strong>Customer:</strong>
+						${reservation.first_name}
+						${reservation.last_name}
+						<br>
+
+						<strong>Phone:</strong>
+						${reservation.phone || "Not provided"}
+						<br>
+
+						<strong>Date:</strong>
+						${reservation.shuttle_date}
+						<br>
+
+						<strong>Expected Finish Time:</strong>
+						${reservation.expected_takeout_time}
+						<br>
+
+						<strong>Route:</strong>
+						${reservation.launch_site}
+						→
+						${reservation.takeout_site}
+						<br>
+
+						<strong>Price:</strong>
+						$${Number(
+							reservation.price || 0
+						).toFixed(2)}
+						<br>
+
+						<strong>Payment Status:</strong>
+						${paymentStatus}
+					</p>
+
+					<h3>Vehicle</h3>
+
+					<p>
+						${reservation.vehicle_year || ""}
+						${reservation.vehicle_make || ""}
+						${reservation.vehicle_model || ""}
+
+						${reservation.vehicle_color
+							? `— ${reservation.vehicle_color}`
+							: ""}
+
+						<br>
+
+						<strong>License Plate:</strong>
+						${reservation.license_plate ||
+						"Not provided"}
+
+						${reservation.license_state
+							? ` (${reservation.license_state})`
+							: ""}
+					</p>
+
+					<h3>Keys</h3>
+
+					<p>
+						${reservation.key_location ||
+						"No key location provided"}
+
+						${reservation.key_location_other
+							? ` — ${reservation.key_location_other}`
+							: ""}
+					</p>
+
+					${reservation.special_instructions
+						? `
+							<h3>Special Instructions</h3>
+							<p>
+								${reservation.special_instructions}
+							</p>
+						`
+						: ""}
+				`,
+			}),
+		}
+	);
+
+	const data = await resendResponse.json();
+
+	if (!resendResponse.ok) {
+		throw new Error(
+			data.message ||
+			"New reservation staff notification failed."
+		);
+	}
+
+	return data;
+}

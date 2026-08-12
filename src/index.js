@@ -6,7 +6,8 @@ import {
 
 import {
 	sendReservationConfirmation,
-	sendCompletionEmail
+	sendCompletionEmail,
+	sendNewReservationNotification
 } from "./email/email-service.js";
 
 import {
@@ -41,7 +42,9 @@ import {
 	handleCompletionEmail
 } from "./email/email-api.js";
 
-import { APP_VERSION } from "./config/app-version.js";
+import { 
+	APP_VERSION 
+} from "./config/app-version.js";
 
 
 export default {
@@ -99,6 +102,19 @@ if (
 			error
 		);
 	}
+try {
+	await sendNewReservationNotification(
+		env,
+		reservation,
+		reservationId,
+		paymentStatus
+	);
+} catch (error) {
+	console.error(
+		"New reservation staff notification failed:",
+		error
+	);
+}
 
 	return Response.json({
 		success: true,
