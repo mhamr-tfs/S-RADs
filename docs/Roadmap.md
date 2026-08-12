@@ -2,13 +2,23 @@
 
 ## Current Version
 
-Phase 1 - Customer Reservations ✅
+**0.4.0-beta — Limited Operational Release**
+
+S-RADs has completed the primary alpha development cycle.
+The beta cycle focuses on real-world shuttle operations, validation,
+hardening, and production readiness.
+
+---
+
+## Phase 1 - Customer Reservations ✅
+
 - [x] Customer reservation form
 - [x] Route pricing
 - [x] Vehicle information
 - [x] Two Rivers logic
 
-Phase 2 - Dispatch ✅
+## Phase 2 - Dispatch ✅
+
 - [x] Driver assignment
 - [x] Shuttle status
 - [x] Elapsed timer
@@ -17,76 +27,81 @@ Phase 2 - Dispatch ✅
 
 ---
 
-## Phase 3 - Operations
+## Phase 3 - Operations ✅
 
-### High Priority
+### Core Operations
 
 - [x] Search reservations
 - [x] Driver availability panel
 - [x] Dashboard metrics
 - [x] Dev-tools
-- [x] Payment reporting - 0.3.5-alpha
+- [x] Payment reporting — 0.3.5-alpha
+- [x] Photo upload / Cloudflare R2 — 0.3.6-alpha
+- [x] Square integration — 0.3.7-alpha
+- [x] Email confirmations — 0.3.8-alpha
+- [x] Subsystem refactor — 0.3.9-alpha
+- [x] Alpha feature-complete milestone — 0.3.10-alpha
 
-### Medium Priority
+---
 
-- [x] Photo upload (Cloudflare R2) 0.3.6
-    0.3.6 Photo Upload
+## Phase 4 - Operational Beta
 
-        Backend
-        ✓ Upload API
-        ✓ R2 storage
-        ✓ Metadata
-        ✓ Retrieval API
+### 0.4.0-beta — Limited Operational Release
 
-        Frontend
-        ✓ Reservation photo panel
-        ✓ Upload UI
-        ✓ Gallery
-        ✓ Image viewer
-- [x] Square integration 0.3.7
-- [x] Email confirmations 0.3.8
-- [x] Subsystem refactor 0.3.9
-- [ ] Limited system release 0.3.10 - Square production cutover/validation
-- [ ] Archive completed shuttles -  0.3.11
-- [ ] Cancelled reservation workflow - 0.3.12
-- [ ] Better dashboard filtering 0.3.13
+- [x] Square production cutover and validation
+- [ ] First live customer shuttle
+- [ ] Validate customer reservation workflow under real conditions
+- [ ] Validate live payment workflow
+- [ ] Validate dispatch workflow
+- [ ] Validate photo documentation workflow
+- [ ] Validate completion email workflow
+- [ ] Confirm operational fallback procedure
+- [ ] Production dashboard access
 
+### Beta Enhancements
 
-### Future
+- [ ] Archive completed shuttles — 0.4.1-beta
+- [ ] Cancelled reservation workflow — 0.4.2-beta
+- [ ] Better dashboard filtering — 0.4.3-beta
+- [ ] CSV export — 0.4.4-beta
+- [ ] Driver mobile capture — 0.4.5-beta
 
+---
 
-- [ ] Reports 0.4.0
-- [ ] CSV export 0.4.1
-- [ ] Driver mobile capture 0.4.2
-Version Status  Milestone
-0.1.x   ✅ Complete  Foundation
-0.2.x   ✅ Complete  Reservation System
-0.3.0-alpha ✅ Complete  Dispatch Dashboard
-0.3.1-alpha ✅ Complete  Search & Filtering
-0.3.2-alpha 🚧 Next Driver Availability
-Future Enhancements
+## Version Status
 
+| Version | Status | Milestone |
+|---|---|---|
+| 0.1.x | ✅ Complete | Foundation |
+| 0.2.x | ✅ Complete | Reservation System |
+| 0.3.0-alpha | ✅ Complete | Dispatch Dashboard |
+| 0.3.1–0.3.10-alpha | ✅ Complete | Operations & Integration |
+| 0.4.0-beta | 🚧 Current | Limited Operational Release |
+| 0.4.x-beta | ⏳ Planned | Validation & Hardening |
+| 1.0.0 | 🎯 Goal | Production Release |
 
-0.4.0-beta  ⏳ Planned   Feature Complete
-1.0.0   🎯 Goal Production Release
-Post-1.0 Enhancements
+---
 
-□ Smart Dispatch Alerts
-    • Route-aware timing
-    • Dispatch deadline calculation
-    • Push notifications
-    • Audible office alerts
-    • Driver availability awareness
+## Post-1.0 Enhancements
 
-□ Photo Documentation
-    • Vehicle verification
-    • Key location
-    • Pickup
-    • Drop-off
-    • Damage documentation
+### Smart Dispatch Alerts
 
-□ Mobile Driver App
+- Route-aware timing
+- Dispatch deadline calculation
+- Push notifications
+- Audible office alerts
+- Driver availability awareness
 
-□ Reporting & Analytics
+### Enhanced Photo Documentation
 
-□ Twilio Integration
+- Vehicle verification
+- Key location
+- Pickup
+- Drop-off
+- Damage documentation
+
+### Mobile Driver App
+
+### Reporting & Analytics
+
+### Twilio Integration
