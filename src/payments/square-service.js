@@ -10,7 +10,7 @@ const SQUARE_VERSION = "2026-07-15";
 // ======================================================
 export async function getSquareLocation(env) {
 	const squareResponse = await fetch(
-		`https://connect.squareupsandbox.com/v2/locations/${env.SQUARE_LOCATION_ID}`,
+		`https://connect.squareup.com/v2/locations/${env.SQUARE_LOCATION_ID}`,
 		{
 			headers: {
 				Authorization:
@@ -71,7 +71,7 @@ export async function createSquarePaymentLink(
 	);
 
 	const squareResponse = await fetch(
-		"https://connect.squareupsandbox.com/v2/online-checkout/payment-links",
+		"https://connect.squareup.com/v2/online-checkout/payment-links",
 		{
 			method: "POST",
 			headers: {

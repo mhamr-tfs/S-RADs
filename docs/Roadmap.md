@@ -45,7 +45,7 @@ Phase 2 - Dispatch ✅
         ✓ Image viewer
 - [x] Square integration 0.3.7
 - [x] Email confirmations 0.3.8
-- [ ] Subsystem refactor 0.3.9
+- [x] Subsystem refactor 0.3.9
 - [ ] Limited system release 0.3.10 - Square production cutover/validation
 - [ ] Archive completed shuttles -  0.3.11
 - [ ] Cancelled reservation workflow - 0.3.12
