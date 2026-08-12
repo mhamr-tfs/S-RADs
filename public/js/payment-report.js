@@ -1,4 +1,4 @@
-/* S-RADs Payment Report v0.3.4-alpha
+/* S-RADs Payment Report
  *
  * This module initializes the payment report page by fetching payment summaries and rendering them.
  * It uses the payment API to retrieve data and the payment renderer to display it in the frontend.
@@ -12,6 +12,10 @@ import {
 	renderPaymentSummary,
 	renderOutstandingPayments,
 } from "./payment-render.js";
+
+import { 
+	loadAppVersion 
+} from "./app-version.js";
 
 async function initializePaymentReport() {
 	try {
@@ -36,4 +40,5 @@ renderOutstandingPayments(outstanding);
 	}
 }
 
+loadAppVersion();
 initializePaymentReport();

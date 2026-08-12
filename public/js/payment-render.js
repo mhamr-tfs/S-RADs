@@ -1,4 +1,4 @@
-/* S-RADs Payment Renderer v0.3.4-alpha
+/* S-RADs Payment Renderer
  *
  * This module provides functions to render payment-related data in the frontend of the S-RADS application.
  * It is designed to work with the payment API to display payment summaries and outstanding payments.

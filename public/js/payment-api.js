@@ -1,4 +1,4 @@
-/*S-RADs Payment API v0.3.4-alpha
+/*S-RADs Payment API
  *
  * This module provides functions to interact with the payment-related endpoints of the S-RADS API.
  * It is designed to be used in the frontend of the application to fetch payment summaries and outstanding payments.
