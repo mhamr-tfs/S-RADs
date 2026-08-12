@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { fetchReservations, fetchDrivers } from "./api.js";
 import { renderSummary, renderDriverAvailability, renderReservations, renderDashboardError } from "./render.js";
 import { attachFilterListeners, configureEventCallbacks } from "./events.js";
+import { loadAppVersion } from "./app-version.js";
 
 export async function loadDashboard() {
 	try {
@@ -27,5 +28,6 @@ configureEventCallbacks({
 });
 
 attachFilterListeners();
+loadAppVersion();
 loadDashboard();
 setInterval(loadDashboard, 30000);

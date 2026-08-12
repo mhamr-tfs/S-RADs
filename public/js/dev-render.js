@@ -5,6 +5,12 @@
  * They should never be exposed to production users.
  */
 export function renderDevStatus(status) {
+	const versionElement =
+	document.querySelector("[data-app-version]");
+
+if (versionElement) {
+	versionElement.textContent = status.version;
+}
 	document.getElementById("worker-status").textContent =
 		"🟢 Connected";
 

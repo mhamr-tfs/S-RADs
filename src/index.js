@@ -41,16 +41,24 @@ import {
 	handleCompletionEmail
 } from "./email/email-api.js";
 
+import { APP_VERSION } from "./config/app-version.js";
+
+
 export default {
 	
 	async fetch(request, env, ctx) {
 		const url = new URL(request.url);
+		if (url.pathname === "/favicon.ico") {
+	return new Response(null, {
+		status: 204,
+	});
+}
 
 		if (url.pathname === "/api/status") {
 			return Response.json({
 				shop: "Thermopolis Fly Shop",
 				app: "Shuttle Dispatch System",
-				version: "0.5.0-alpha",
+				version: APP_VERSION,
 				status: "Online",
 				database: env.DB ? "Connected" : "Not connected",
 			});

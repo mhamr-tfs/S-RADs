@@ -15,7 +15,9 @@ import {
 	renderDevError,
 } from "./dev-render.js";
 
+console.log("dev-tools.js loaded");
 async function loadDevTools() {
+	console.log("loadDevTools() started");
 	try {
 		const status = await fetchDevStatus();
 		renderDevStatus(status);

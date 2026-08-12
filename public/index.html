@@ -13,7 +13,7 @@
 		<header>
 			<h1>Thermopolis Fly Shop</h1>
 			<h2>🚐 Shuttle Reservation</h2>
-			<p>Version 0.3.1.1-alpha</p>
+			<p>Version <span data-app-version>Loading...</span></p>
 		</header>
 
 		<main>
@@ -333,5 +333,9 @@
 		</main>
 
 		<script src="/app.js"></script>
+		<script type="module">
+	import { loadAppVersion } from "/js/app-version.js";
+	loadAppVersion();
+</script>
 </body>
 </html>
