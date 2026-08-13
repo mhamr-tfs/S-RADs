@@ -8,7 +8,7 @@
 // ======================================================
 export async function getReservations(env) {
 	const result = await env.DB.prepare(
-		"SELECT * FROM reservations ORDER BY shuttle_date, expected_takeout_time"
+		"SELECT * FROM reservations WHERE archived = 0 ORDER BY shuttle_date, expected_takeout_time"
 	).all();
 
 	return result.results;
@@ -177,4 +177,72 @@ export async function updateReservation(
 		success: true,
 		message: "Reservation updated",
 	};
+	
+}
+// ======================================================
+// Archive reservation
+// ======================================================
+export async function archiveReservation(
+        env,
+        reservationId
+) {
+        const now = new Date().toISOString();
+
+        const result = await env.DB.prepare(`
+                UPDATE reservations
+                SET archived = 1,
+                    archived_at = ?
+                WHERE id = ?
+        `)
+                .bind(
+                        now,
+                        reservationId
+                )
+                .run();
+
+        return {
+                success: true,
+                archived: true,
+                reservation_id: reservationId,
+                changes: result.meta.changes,
+        };
+}
+
+// ======================================================
+// Restore archived reservation
+// ======================================================
+export async function restoreReservation(
+        env,
+        reservationId
+) {
+        const result = await env.DB.prepare(`
+                UPDATE reservations
+                SET archived = 0,
+                    archived_at = NULL
+                WHERE id = ?
+        `)
+                .bind(
+                        reservationId
+                )
+                .run();
+
+        return {
+                success: true,
+                archived: false,
+                reservation_id: reservationId,
+                changes: result.meta.changes,
+        };
+}
+// ======================================================
+// Get archived reservations
+// ======================================================
+export async function getArchivedReservations(env) {
+        const result = await env.DB.prepare(`
+                SELECT *
+                FROM reservations
+                WHERE archived = 1
+                ORDER BY archived_at DESC
+        `).all();
+
+        return result.results;
 }

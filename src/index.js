@@ -28,9 +28,12 @@ import {
 } from "./reports/report-service.js";
 
 import {
-	getReservations,
-	createReservation,
-	updateReservation
+	    getReservations,
+        getArchivedReservations,
+        createReservation,
+        updateReservation,
+        archiveReservation,
+        restoreReservation
 } from "./reservations/reservation-service.js";
 
 import {
@@ -141,6 +144,41 @@ try {
 
 	return Response.json(result);
 }
+// ======================================================
+// Archive reservation
+// ======================================================
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/reservations/archive"
+) {
+        const body = await request.json();
+
+        const result =
+                await archiveReservation(
+                        env,
+                        Number(body.id)
+                );
+
+        return Response.json(result);
+}
+
+// ======================================================
+// Restore archived reservation
+// ======================================================
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/reservations/restore"
+) {
+        const body = await request.json();
+
+        const result =
+                await restoreReservation(
+                        env,
+                        Number(body.id)
+                );
+
+        return Response.json(result);
+}
 
 		if (
 	url.pathname === "/api/routes" &&
@@ -185,6 +223,18 @@ if (
 		request,
 		env
 	);
+}
+// ======================================================
+// Get archived reservations
+// ======================================================
+if (
+        request.method === "GET" &&
+        url.pathname === "/api/reservations/archived"
+) {
+        const reservations =
+                await getArchivedReservations(env);
+
+        return Response.json(reservations);
 }
 // ======================================================
 // Developer Tools: Load Demo Reservations
