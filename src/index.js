@@ -46,6 +46,10 @@ import {
 	APP_VERSION 
 } from "./config/app-version.js";
 
+import {
+	handleInboundEmail
+} from "./email/email-inbound-api.js";
+
 
 export default {
 	
@@ -340,5 +344,19 @@ if (
 		env
 	);
 }
+
+// ======================================================
+// Resend inbound email webhook
+// ======================================================
+if (
+	request.method === "POST" &&
+	url.pathname === "/api/email/inbound"
+) {
+	return await handleInboundEmail(
+		request,
+		env
+	);
+}
+
 	}
 };
