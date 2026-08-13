@@ -200,7 +200,7 @@ document
 
 				const response =
 					await fetch(
-						"/api/reservations",
+						"/api/public/reservations",
 						{
 							method: "POST",
 							headers: {

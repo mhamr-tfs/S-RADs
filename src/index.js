@@ -70,17 +70,18 @@ export default {
 				database: env.DB ? "Connected" : "Not connected",
 			});
 		}
-		if (
-	url.pathname === "/api/reservations" &&
-	request.method === "GET"
-) {
-	const reservations =
-		await getReservations(env);
-
-	return Response.json(reservations);
-}
 if (
-	url.pathname === "/api/reservations" &&
+        url.pathname === "/api/reservations" &&
+        request.method === "GET"
+) {
+        const reservations =
+                await getReservations(env);
+
+        return Response.json(reservations);
+}
+
+if (
+	url.pathname === "/api/public/reservations" &&
 	request.method === "POST"
 ) {
 	const reservation = await request.json();
@@ -160,7 +161,14 @@ if (
 	return Response.json(drivers);
 }
 		// for devloper tools section - works on localhost only
-		if (url.pathname === "/dev-tools") {
+		const isLocalhost =
+        url.hostname === "localhost" ||
+        url.hostname === "127.0.0.1";
+
+if (
+        isLocalhost &&
+        url.pathname === "/dev-tools"
+) {
 	const assetUrl = new URL(request.url);
 	assetUrl.pathname = "/dev-tools.html";
 
@@ -169,6 +177,7 @@ if (
 	);
 }
 if (
+	isLocalhost &&
 	url.pathname === "/api/dev/reservations" &&
 	request.method === "DELETE"
 ) {
@@ -182,6 +191,7 @@ if (
 // Local development only
 // ======================================================
 if (
+	isLocalhost &&
 	url.pathname === "/api/dev/demo-reservations" &&
 	request.method === "POST"
 ) {
