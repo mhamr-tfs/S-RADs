@@ -31,6 +31,7 @@ import {
 	    getReservations,
         getArchivedReservations,
 		archiveCompletedReservations,
+		editReservationDetails,
         createReservation,
         updateReservation,
         archiveReservation,
@@ -63,6 +64,32 @@ export default {
 	return new Response(null, {
 		status: 204,
 	});
+}
+// ======================================================
+// Staff edit reservation details
+// ======================================================
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/reservations/staff-edit"
+) {
+        const update =
+                await request.json();
+
+        const result =
+                await editReservationDetails(
+                        env,
+                        update
+                );
+
+        return Response.json(
+                result,
+                {
+                        status:
+                                result.success
+                                        ? 200
+                                        : 404,
+                }
+        );
 }
 
 		if (url.pathname === "/api/status") {

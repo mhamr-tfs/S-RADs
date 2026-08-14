@@ -267,3 +267,139 @@ export async function archiveCompletedReservations(env) {
                 archived_count: result.meta.changes,
         };
 }
+// ======================================================
+// Staff edit reservation details
+// ======================================================
+export async function editReservationDetails(
+        env,
+        update
+) {
+        const editableFields = [
+                "first_name",
+                "last_name",
+                "phone",
+                "email",
+                "shuttle_date",
+                "expected_takeout_time",
+                "launch_site",
+                "takeout_site",
+                "vehicle_year",
+                "vehicle_make",
+                "vehicle_model",
+                "vehicle_color",
+                "license_plate",
+                "license_state",
+                "license_county",
+                "key_location",
+                "key_location_other",
+                "special_instructions",
+                "is_two_rivers_guest",
+                "two_rivers_direct_booking",
+                "payment_method",
+                "cash_location",
+        ];
+
+        const reservationId =
+                Number(update.id);
+
+        const current =
+                await env.DB.prepare(
+                        "SELECT * FROM reservations WHERE id = ?"
+                )
+                        .bind(reservationId)
+                        .first();
+
+        if (!current) {
+                return {
+                        success: false,
+                        message: "Reservation not found",
+                };
+        }
+
+        const changes = [];
+
+        for (const field of editableFields) {
+                if (!(field in update)) {
+                        continue;
+                }
+
+                const oldValue =
+                        current[field] ?? null;
+
+                const newValue =
+                        update[field] ?? null;
+
+                if (
+                        String(oldValue ?? "") ===
+                        String(newValue ?? "")
+                ) {
+                        continue;
+                }
+
+                changes.push({
+                        field,
+                        oldValue,
+                        newValue,
+                });
+        }
+
+        if (changes.length === 0) {
+                return {
+                        success: true,
+                        message: "No changes detected",
+                        changes: 0,
+                };
+        }
+
+        for (const change of changes) {
+                await env.DB.prepare(`
+                        INSERT INTO reservation_changes (
+                                reservation_id,
+                                field_name,
+                                old_value,
+                                new_value,
+                                changed_by
+                        )
+                        VALUES (?, ?, ?, ?, ?)
+                `)
+                        .bind(
+                                reservationId,
+                                change.field,
+                                change.oldValue,
+                                change.newValue,
+                                update.changed_by ?? null
+                        )
+                        .run();
+        }
+
+        const assignments =
+                changes
+                        .map(
+                                (change) =>
+                                        `${change.field} = ?`
+                        )
+                        .join(", ");
+
+        const values =
+                changes.map(
+                        (change) =>
+                                change.newValue
+                );
+
+        await env.DB.prepare(`
+                UPDATE reservations
+                SET ${assignments}
+                WHERE id = ?
+        `)
+                .bind(
+                        ...values,
+                        reservationId
+                )
+                .run();
+
+        return {
+                success: true,
+                message: "Reservation details updated",
+                changes: changes.length,
+        };
+}
