@@ -246,3 +246,24 @@ export async function getArchivedReservations(env) {
 
         return result.results;
 }
+// ======================================================
+// Archive all completed and cancelled reservations
+// ======================================================
+export async function archiveCompletedReservations(env) {
+        const now = new Date().toISOString();
+
+        const result = await env.DB.prepare(`
+                UPDATE reservations
+                SET archived = 1,
+                    archived_at = ?
+                WHERE archived = 0
+                  AND status IN ('Completed', 'Cancelled')
+        `)
+                .bind(now)
+                .run();
+
+        return {
+                success: true,
+                archived_count: result.meta.changes,
+        };
+}

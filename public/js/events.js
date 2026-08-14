@@ -1,5 +1,11 @@
-import { updateReservation } from "./api.js";
-import { getStatusClass, getPaymentClass } from "./formatters.js";
+import {
+        updateReservation,
+        archiveCompletedReservations
+} from "./api.js";
+
+import { 
+	getStatusClass, getPaymentClass 
+} from "./formatters.js";
 
 let refreshDashboard;
 let renderReservations;
@@ -377,7 +383,45 @@ export function attachFilterListeners() {
 
 			renderReservations();
 		});
+        const archiveCompletedButton =
+                document.getElementById(
+                        "archive-completed"
+                );
 
+        archiveCompletedButton.addEventListener(
+                "click",
+                async () => {
+                        const confirmed =
+                                confirm(
+                                        "Archive all completed and cancelled shuttles?"
+                                );
+
+                        if (!confirmed) {
+                                return;
+                        }
+
+                        try {
+                                const result =
+                                        await archiveCompletedReservations();
+
+                                alert(
+                                        `${result.archived_count} shuttle(s) archived.`
+                                );
+
+                                await refreshDashboard();
+                        } catch (error) {
+                                console.error(
+                                        "Archive failed:",
+                                        error
+                                );
+
+                                alert(
+                                        "The shuttles could not be archived."
+                                );
+                        }
+                }
+        );
+		
 	const sendCompletionEmailButton =
 		document.getElementById(
 			"send-completion-email"

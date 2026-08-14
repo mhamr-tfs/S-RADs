@@ -30,6 +30,7 @@ import {
 import {
 	    getReservations,
         getArchivedReservations,
+		archiveCompletedReservations,
         createReservation,
         updateReservation,
         archiveReservation,
@@ -235,6 +236,18 @@ if (
                 await getArchivedReservations(env);
 
         return Response.json(reservations);
+}
+// ======================================================
+// Archive all completed/cancelled reservations
+// ======================================================
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/reservations/archive-completed"
+) {
+        const result =
+                await archiveCompletedReservations(env);
+
+        return Response.json(result);
 }
 // ======================================================
 // Developer Tools: Load Demo Reservations

@@ -20,3 +20,19 @@ export async function updateReservation(id, driver, status, paymentStatus) {
 	if (!response.ok) throw new Error(`Update failed with status ${response.status}`);
 	return response.json();
 }
+export async function archiveCompletedReservations() {
+        const response = await fetch(
+                "/api/reservations/archive-completed",
+                {
+                        method: "PATCH",
+                }
+        );
+
+        if (!response.ok) {
+                throw new Error(
+                        `Archive request failed with status ${response.status}`
+                );
+        }
+
+        return response.json();
+}
