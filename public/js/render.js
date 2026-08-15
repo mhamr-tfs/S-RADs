@@ -171,13 +171,21 @@ export function renderReservations() {
 			<td class="elapsed-time ${getElapsedClass(r.status)}">${formatElapsedTime(r.started_at, r.completed_at, r.status)}</td>
 			<td><div class="payment-method">${r.payment_method || "Not selected"}</div><select class="payment-select ${getPaymentClass(r.payment_status)}" data-id="${r.id}">${paymentOptions(r.payment_status)}</select></td>
 		<td>
-	<button
-		type="button"
-		class="photo-button"
-		data-reservation-id="${r.id}"
-	>
-		Photos
-	</button>
+        <button
+                type="button"
+                class="edit-button"
+                data-reservation-id="${r.id}"
+        >
+                Edit
+        </button>
+
+        <button
+                type="button"
+                class="photo-button"
+                data-reservation-id="${r.id}"
+        >
+                Photos
+        </button>
 </td>
 			</tr>`).join("");
 	attachReservationListeners();

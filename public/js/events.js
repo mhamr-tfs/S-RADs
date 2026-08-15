@@ -7,6 +7,10 @@ import {
 	getStatusClass, getPaymentClass 
 } from "./formatters.js";
 
+import { 
+	state 
+} from "./state.js";
+
 let refreshDashboard;
 let renderReservations;
 
@@ -288,6 +292,160 @@ export function attachReservationListeners() {
 			);
 		});
 
+		        document
+                .querySelectorAll(".edit-button")
+                .forEach((button) => {
+                        button.addEventListener(
+                                "click",
+                                function () {
+                                        const reservationId =
+                                                Number(
+                                                        this.dataset
+                                                                .reservationId
+                                                );
+
+                                        const reservation =
+                                                state.reservations.find(
+                                                        (item) =>
+                                                                item.id ===
+                                                                reservationId
+                                                );
+
+                                        if (!reservation) {
+                                                alert(
+                                                        "Reservation could not be loaded."
+                                                );
+                                                return;
+                                        }
+
+                                        const modal =
+                                                document.getElementById(
+                                                        "edit-modal"
+                                                );
+
+                                        modal.dataset.reservationId =
+                                                reservationId;
+
+                                        document.getElementById(
+                                                "edit-reservation-id"
+                                        ).value = reservationId;
+
+                                        document.getElementById(
+                                                "edit-first-name"
+                                        ).value =
+                                                reservation.first_name || "";
+
+                                        document.getElementById(
+                                                "edit-last-name"
+                                        ).value =
+                                                reservation.last_name || "";
+
+                                        document.getElementById(
+                                                "edit-phone"
+                                        ).value =
+                                                reservation.phone || "";
+
+                                        document.getElementById(
+                                                "edit-email"
+                                        ).value =
+                                                reservation.email || "";
+
+                                        document.getElementById(
+                                                "edit-shuttle-date"
+                                        ).value =
+                                                reservation.shuttle_date || "";
+
+                                        document.getElementById(
+                                                "edit-takeout-time"
+                                        ).value =
+                                                reservation.expected_takeout_time ||
+                                                "";
+
+                                        document.getElementById(
+                                                "edit-launch-site"
+                                        ).value =
+                                                reservation.launch_site || "";
+
+                                        document.getElementById(
+                                                "edit-takeout-site"
+                                        ).value =
+                                                reservation.takeout_site || "";
+
+                                        document.getElementById(
+                                                "edit-vehicle-year"
+                                        ).value =
+                                                reservation.vehicle_year || "";
+
+                                        document.getElementById(
+                                                "edit-vehicle-make"
+                                        ).value =
+                                                reservation.vehicle_make || "";
+
+                                        document.getElementById(
+                                                "edit-vehicle-model"
+                                        ).value =
+                                                reservation.vehicle_model || "";
+
+                                        document.getElementById(
+                                                "edit-vehicle-color"
+                                        ).value =
+                                                reservation.vehicle_color || "";
+
+                                        document.getElementById(
+                                                "edit-license-plate"
+                                        ).value =
+                                                reservation.license_plate || "";
+
+                                        document.getElementById(
+                                                "edit-license-state"
+                                        ).value =
+                                                reservation.license_state || "";
+
+                                        document.getElementById(
+                                                "edit-license-county"
+                                        ).value =
+                                                reservation.license_county || "";
+
+                                        document.getElementById(
+                                                "edit-key-location"
+                                        ).value =
+                                                reservation.key_location || "";
+
+                                        document.getElementById(
+                                                "edit-key-location-other"
+                                        ).value =
+                                                reservation.key_location_other ||
+                                                "";
+
+                                        document.getElementById(
+                                                "edit-payment-method"
+                                        ).value =
+                                                reservation.payment_method || "";
+
+                                        document.getElementById(
+                                                "edit-special-instructions"
+                                        ).value =
+                                                reservation.special_instructions ||
+                                                "";
+
+                                        modal.dataset.original =
+                                                JSON.stringify(
+                                                        reservation
+                                                );
+
+                                        document.getElementById(
+                                                "edit-critical-warning"
+                                        ).hidden = true;
+
+                                        document.getElementById(
+                                                "edit-status"
+                                        ).textContent = "";
+
+                                        modal.hidden = false;
+                                }
+                        );
+                });
+
 	document
 		.querySelectorAll(".photo-button")
 		.forEach((button) => {
@@ -337,7 +495,270 @@ export function attachReservationListeners() {
 	}
 }
 
+        const editModalClose =
+                document.getElementById(
+                        "edit-modal-close"
+                );
+
+        editModalClose.addEventListener(
+                "click",
+                () => {
+                        document.getElementById(
+                                "edit-modal"
+                        ).hidden = true;
+                }
+        );
+
 export function attachFilterListeners() {
+	        const editForm =
+                document.getElementById(
+                        "edit-reservation-form"
+                );
+
+        editForm.addEventListener(
+                "submit",
+                async (event) => {
+                        event.preventDefault();
+
+                        const modal =
+                                document.getElementById(
+                                        "edit-modal"
+                                );
+
+                        const status =
+                                document.getElementById(
+                                        "edit-status"
+                                );
+
+                        const warning =
+                                document.getElementById(
+                                        "edit-critical-warning"
+                                );
+
+                        const original =
+                                JSON.parse(
+                                        modal.dataset.original || "{}"
+                                );
+
+                        const update = {
+                                id: Number(
+                                        document.getElementById(
+                                                "edit-reservation-id"
+                                        ).value
+                                ),
+
+                                first_name:
+                                        document.getElementById(
+                                                "edit-first-name"
+                                        ).value.trim(),
+
+                                last_name:
+                                        document.getElementById(
+                                                "edit-last-name"
+                                        ).value.trim(),
+
+                                phone:
+                                        document.getElementById(
+                                                "edit-phone"
+                                        ).value.trim(),
+
+                                email:
+                                        document.getElementById(
+                                                "edit-email"
+                                        ).value.trim(),
+
+                                shuttle_date:
+                                        document.getElementById(
+                                                "edit-shuttle-date"
+                                        ).value,
+
+                                expected_takeout_time:
+                                        document.getElementById(
+                                                "edit-takeout-time"
+                                        ).value,
+
+                                launch_site:
+                                        document.getElementById(
+                                                "edit-launch-site"
+                                        ).value.trim(),
+
+                                takeout_site:
+                                        document.getElementById(
+                                                "edit-takeout-site"
+                                        ).value.trim(),
+
+                                vehicle_year:
+                                        document.getElementById(
+                                                "edit-vehicle-year"
+                                        ).value.trim(),
+
+                                vehicle_make:
+                                        document.getElementById(
+                                                "edit-vehicle-make"
+                                        ).value.trim(),
+
+                                vehicle_model:
+                                        document.getElementById(
+                                                "edit-vehicle-model"
+                                        ).value.trim(),
+
+                                vehicle_color:
+                                        document.getElementById(
+                                                "edit-vehicle-color"
+                                        ).value.trim(),
+
+                                license_plate:
+                                        document.getElementById(
+                                                "edit-license-plate"
+                                        ).value.trim(),
+
+                                license_state:
+                                        document.getElementById(
+                                                "edit-license-state"
+                                        ).value.trim(),
+
+                                license_county:
+                                        document.getElementById(
+                                                "edit-license-county"
+                                        ).value.trim(),
+
+                                key_location:
+                                        document.getElementById(
+                                                "edit-key-location"
+                                        ).value.trim(),
+
+                                key_location_other:
+                                        document.getElementById(
+                                                "edit-key-location-other"
+                                        ).value.trim(),
+
+                                payment_method:
+                                        document.getElementById(
+                                                "edit-payment-method"
+                                        ).value.trim(),
+
+                                special_instructions:
+                                        document.getElementById(
+                                                "edit-special-instructions"
+                                        ).value.trim(),
+
+                                changed_by: "Staff",
+                        };
+
+                        const criticalFields = [
+                                "shuttle_date",
+                                "expected_takeout_time",
+                                "launch_site",
+                                "takeout_site",
+                                "vehicle_year",
+                                "vehicle_make",
+                                "vehicle_model",
+                                "vehicle_color",
+                                "license_plate",
+                                "license_state",
+                                "license_county",
+                                "key_location",
+                                "key_location_other",
+                        ];
+
+                        const criticalChanges =
+                                criticalFields.filter(
+                                        (field) =>
+                                                String(
+                                                        original[field] ?? ""
+                                                ) !==
+                                                String(
+                                                        update[field] ?? ""
+                                                )
+                                );
+
+                        if (criticalChanges.length > 0) {
+                                warning.hidden = false;
+
+                                const confirmed =
+                                        confirm(
+                                                "CRITICAL DISPATCH INFORMATION HAS CHANGED.\n\n" +
+                                                "Changed fields:\n" +
+                                                criticalChanges
+                                                        .map(
+                                                                (field) =>
+                                                                        "• " +
+                                                                        field.replaceAll(
+                                                                                "_",
+                                                                                " "
+                                                                        )
+                                                        )
+                                                        .join("\n") +
+                                                "\n\nSave these changes?"
+                                        );
+
+                                if (!confirmed) {
+                                        return;
+                                }
+                        }
+
+                        try {
+                                status.textContent =
+                                        "Saving changes...";
+
+                                const response =
+                                        await fetch(
+                                                "/api/reservations/staff-edit",
+                                                {
+                                                        method: "PATCH",
+
+                                                        headers: {
+                                                                "Content-Type":
+                                                                        "application/json",
+                                                        },
+
+                                                        body:
+                                                                JSON.stringify(
+                                                                        update
+                                                                ),
+                                                }
+                                        );
+
+                                const data =
+                                        await response.json();
+
+                                if (
+                                        !response.ok ||
+                                        !data.success
+                                ) {
+                                        throw new Error(
+                                                data.message ||
+                                                "Reservation update failed."
+                                        );
+                                }
+
+                                status.textContent =
+                                        data.changes === 0
+                                                ? "No changes detected."
+                                                : `${data.changes} change(s) saved successfully.`;
+
+                                await refreshDashboard();
+
+                                if (data.changes > 0) {
+                                        setTimeout(
+                                                () => {
+                                                        modal.hidden = true;
+                                                },
+                                                500
+                                        );
+                                }
+                        } catch (error) {
+                                console.error(
+                                        "Staff reservation edit failed:",
+                                        error
+                                );
+
+                                status.textContent =
+                                        error.message ||
+                                        "Reservation update failed.";
+                        }
+                }
+        );
 	document
 		.getElementById("photo-upload-form")
 		.addEventListener(

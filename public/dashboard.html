@@ -65,6 +65,137 @@
 				</div>
 			</section>
 		</main>
+		<div id="edit-modal" class="photo-modal" hidden>
+        <div class="photo-modal-content edit-modal-content">
+                <button
+                        id="edit-modal-close"
+                        type="button"
+                        aria-label="Close edit window"
+                >
+                        ×
+                </button>
+
+                <h2>Edit Reservation</h2>
+
+                <div
+                        id="edit-critical-warning"
+                        class="edit-critical-warning"
+                        hidden
+                >
+                        ⚠ IMPORTANT DISPATCH INFORMATION HAS BEEN CHANGED
+                </div>
+
+                <form id="edit-reservation-form">
+                        <input
+                                id="edit-reservation-id"
+                                type="hidden"
+                        />
+
+                        <div class="form-grid">
+                                <label class="field-group">
+                                        <span>First Name</span>
+                                        <input id="edit-first-name" type="text" required />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Last Name</span>
+                                        <input id="edit-last-name" type="text" required />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Phone</span>
+                                        <input id="edit-phone" type="tel" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Email</span>
+                                        <input id="edit-email" type="email" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Shuttle Date</span>
+                                        <input id="edit-shuttle-date" type="date" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Expected Takeout Time</span>
+                                        <input id="edit-takeout-time" type="time" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Launch Site</span>
+                                        <input id="edit-launch-site" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Takeout Site</span>
+                                        <input id="edit-takeout-site" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Vehicle Year</span>
+                                        <input id="edit-vehicle-year" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Vehicle Make</span>
+                                        <input id="edit-vehicle-make" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Vehicle Model</span>
+                                        <input id="edit-vehicle-model" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Vehicle Color</span>
+                                        <input id="edit-vehicle-color" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>License Plate</span>
+                                        <input id="edit-license-plate" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>License State</span>
+                                        <input id="edit-license-state" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>License County</span>
+                                        <input id="edit-license-county" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Key Location</span>
+                                        <input id="edit-key-location" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Other Key Location</span>
+                                        <input id="edit-key-location-other" type="text" />
+                                </label>
+
+                                <label class="field-group">
+                                        <span>Payment Method</span>
+                                        <input id="edit-payment-method" type="text" />
+                                </label>
+                        </div>
+
+                        <label class="field-group">
+                                <span>Special Instructions</span>
+                                <textarea id="edit-special-instructions"></textarea>
+                        </label>
+
+                        <p id="edit-status" aria-live="polite"></p>
+
+                        <button type="submit">
+                                Save Reservation Changes
+                        </button>
+                </form>
+        </div>
+</div>
 <div id="photo-modal" class="photo-modal" hidden>
 	<div class="photo-modal-content">
 		<button

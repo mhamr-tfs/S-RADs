@@ -274,6 +274,21 @@ export async function editReservationDetails(
         env,
         update
 ) {
+                const criticalFields = new Set([
+                "shuttle_date",
+                "expected_takeout_time",
+                "launch_site",
+                "takeout_site",
+                "vehicle_year",
+                "vehicle_make",
+                "vehicle_model",
+                "vehicle_color",
+                "license_plate",
+                "license_state",
+                "license_county",
+                "key_location",
+                "key_location_other",
+        ]);
         const editableFields = [
                 "first_name",
                 "last_name",
@@ -352,25 +367,27 @@ export async function editReservationDetails(
         }
 
         for (const change of changes) {
-                await env.DB.prepare(`
-                        INSERT INTO reservation_changes (
-                                reservation_id,
-                                field_name,
-                                old_value,
-                                new_value,
-                                changed_by
-                        )
-                        VALUES (?, ?, ?, ?, ?)
-                `)
-                        .bind(
-                                reservationId,
-                                change.field,
-                                change.oldValue,
-                                change.newValue,
-                                update.changed_by ?? null
-                        )
-                        .run();
-        }
+        await env.DB.prepare(`
+                INSERT INTO reservation_changes (
+                        reservation_id,
+                        field_name,
+                        old_value,
+                        new_value,
+                        changed_by,
+                        is_critical
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+        `)
+                .bind(
+                        reservationId,
+                        change.field,
+                        change.oldValue,
+                        change.newValue,
+                        update.changed_by ?? null,
+                        criticalFields.has(change.field) ? 1 : 0
+                )
+                .run();
+}
 
         const assignments =
                 changes
