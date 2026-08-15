@@ -796,3 +796,31 @@
 
 	z-index: 1101;
 }
+.critical-change-alert {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 3px solid #b00020;
+        background: #ffe5e8;
+        color: #8b0000;
+        font-weight: 700;
+        border-radius: 6px;
+}
+
+.critical-change-title {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+}
+
+.critical-change-detail {
+        margin-bottom: 6px;
+}
+
+.acknowledge-change-button {
+        background: #b00020;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 4px;
+}

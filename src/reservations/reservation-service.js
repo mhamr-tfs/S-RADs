@@ -414,9 +414,60 @@ export async function editReservationDetails(
                 )
                 .run();
 
-        return {
+                return {
                 success: true,
                 message: "Reservation details updated",
                 changes: changes.length,
+        };
+}
+// ======================================================
+// Get unacknowledged critical changes
+// ======================================================
+export async function getCriticalChanges(env) {
+        const result = await env.DB.prepare(`
+                SELECT
+                        id,
+                        reservation_id,
+                        field_name,
+                        old_value,
+                        new_value,
+                        changed_at,
+                        changed_by
+                FROM reservation_changes
+                WHERE is_critical = 1
+                  AND acknowledged_at IS NULL
+                ORDER BY changed_at DESC
+        `).all();
+
+        return result.results;
+}
+// ======================================================
+// Acknowledge critical changes for a reservation
+// ======================================================
+export async function acknowledgeCriticalChanges(
+        env,
+        reservationId,
+        acknowledgedBy
+) {
+        const now = new Date().toISOString();
+
+        const result = await env.DB.prepare(`
+                UPDATE reservation_changes
+                SET acknowledged_at = ?,
+                    acknowledged_by = ?
+                WHERE reservation_id = ?
+                  AND is_critical = 1
+                  AND acknowledged_at IS NULL
+        `)
+                .bind(
+                        now,
+                        acknowledgedBy ?? "Staff",
+                        reservationId
+                )
+                .run();
+
+        return {
+                success: true,
+                acknowledged_count: result.meta.changes,
         };
 }

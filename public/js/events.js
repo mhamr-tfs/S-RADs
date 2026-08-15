@@ -1,5 +1,6 @@
 import {
         updateReservation,
+		acknowledgeCriticalChanges,
         archiveCompletedReservations
 } from "./api.js";
 
@@ -445,7 +446,47 @@ export function attachReservationListeners() {
                                 }
                         );
                 });
+				document
+        .querySelectorAll(
+                ".acknowledge-change-button"
+        )
+        .forEach((button) => {
+                button.addEventListener(
+                        "click",
+                        async function () {
+                                const reservationId =
+                                        Number(
+                                                this.dataset
+                                                        .reservationId
+                                        );
 
+                                try {
+                                        this.disabled = true;
+                                        this.textContent =
+                                                "Acknowledging...";
+
+                                        await acknowledgeCriticalChanges(
+                                                reservationId
+                                        );
+
+                                        await refreshDashboard();
+                                } catch (error) {
+                                        console.error(
+                                                "Critical change acknowledgement failed:",
+                                                error
+                                        );
+
+                                        this.disabled = false;
+                                        this.textContent =
+                                                "Acknowledge";
+
+                                        alert(
+                                                "The critical change could not be acknowledged. Please try again."
+                                        );
+                                }
+                        }
+                );
+        });
 	document
 		.querySelectorAll(".photo-button")
 		.forEach((button) => {

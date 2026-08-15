@@ -34,6 +34,8 @@ import {
 		editReservationDetails,
         createReservation,
         updateReservation,
+		getCriticalChanges,
+		acknowledgeCriticalChanges,
         archiveReservation,
         restoreReservation
 } from "./reservations/reservation-service.js";
@@ -171,6 +173,38 @@ try {
 		);
 
 	return Response.json(result);
+}
+// ======================================================
+// Get unacknowledged critical changes
+// ======================================================
+if (
+        request.method === "GET" &&
+        url.pathname === "/api/reservations/critical-changes"
+) {
+        const changes =
+                await getCriticalChanges(env);
+
+        return Response.json(changes);
+}
+
+// ======================================================
+// Acknowledge critical changes
+// ======================================================
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/reservations/acknowledge-changes"
+) {
+        const body =
+                await request.json();
+
+        const result =
+                await acknowledgeCriticalChanges(
+                        env,
+                        Number(body.id),
+                        body.acknowledged_by
+                );
+
+        return Response.json(result);
 }
 // ======================================================
 // Archive reservation

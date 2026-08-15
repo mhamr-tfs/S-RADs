@@ -151,43 +151,200 @@ export function renderDriverAvailability(reservations) {
 }
 
 export function renderReservations() {
-	const reservations = getFilteredReservations();
-	const table = document.getElementById("reservations-table");
-	if (!reservations.length) {
-		table.innerHTML = '<tr><td colspan="11">No matching reservations.</td></tr>';
-		return;
-	}
+        const reservations =
+                getFilteredReservations();
 
-	table.innerHTML = reservations.map((r) => `
-		<tr>
-			<td>${r.expected_takeout_time || ""}</td>
-			<td>${r.first_name || ""} ${r.last_name || ""}</td>
-			<td class="contact-cell">${r.phone ? `<a href="tel:${r.phone}">${formatPhoneNumber(r.phone)}</a>` : "No phone provided"}${r.email ? `<br><small>${r.email}</small>` : ""}</td>
-			<td>${r.launch_site || ""} → ${r.takeout_site || ""}</td>
-			<td>${r.vehicle_color || ""} ${r.vehicle_year || ""} ${r.vehicle_make || ""} ${r.vehicle_model || ""}<br>${r.license_state || ""}${r.license_county ? `${r.license_county}-` : ""}${r.license_plate || ""}</td>
-			<td class="keys-cell"><strong>${r.key_location || "Not provided"}</strong>${r.key_location === "Other" && r.key_location_other ? `<br><small>${r.key_location_other}</small>` : ""}</td>
-			<td><select class="driver-select" data-id="${r.id}">${driverOptions(r.driver)}</select></td>
-			<td><select class="status-select ${getStatusClass(r.status)}" data-id="${r.id}">${statusOptions(r.status)}</select></td>
-			<td class="elapsed-time ${getElapsedClass(r.status)}">${formatElapsedTime(r.started_at, r.completed_at, r.status)}</td>
-			<td><div class="payment-method">${r.payment_method || "Not selected"}</div><select class="payment-select ${getPaymentClass(r.payment_status)}" data-id="${r.id}">${paymentOptions(r.payment_status)}</select></td>
-		<td>
-        <button
-                type="button"
-                class="edit-button"
-                data-reservation-id="${r.id}"
-        >
-                Edit
-        </button>
+        const table =
+                document.getElementById(
+                        "reservations-table"
+                );
 
-        <button
-                type="button"
-                class="photo-button"
-                data-reservation-id="${r.id}"
-        >
-                Photos
-        </button>
-</td>
-			</tr>`).join("");
+        if (!reservations.length) {
+                table.innerHTML =
+                        '<tr><td colspan="11">No matching reservations.</td></tr>';
+
+                return;
+        }
+
+        const criticalByReservation =
+                new Map();
+
+        state.criticalChanges.forEach(
+                (change) => {
+                        if (
+                                !criticalByReservation.has(
+                                        change.reservation_id
+                                )
+                        ) {
+                                criticalByReservation.set(
+                                        change.reservation_id,
+                                        []
+                                );
+                        }
+
+                        criticalByReservation
+                                .get(
+                                        change.reservation_id
+                                )
+                                .push(change);
+                }
+        );
+table.innerHTML = reservations.map((r) => {
+        const criticalChanges =
+                criticalByReservation.get(r.id) || [];
+
+        const criticalAlert =
+                criticalChanges.length > 0
+                        ? `
+                                <div class="critical-change-alert">
+                                        <div class="critical-change-title">
+                                                🚨 CRITICAL DISPATCH CHANGE
+                                        </div>
+
+                                        ${criticalChanges
+                                                .map(
+                                                        (change) => `
+                                                                <div class="critical-change-detail">
+                                                                        <strong>
+                                                                                ${change.field_name.replaceAll("_", " ")}
+                                                                        </strong>:
+                                                                        ${change.old_value || "(blank)"}
+                                                                        →
+                                                                        ${change.new_value || "(blank)"}
+                                                                </div>
+                                                        `
+                                                )
+                                                .join("")}
+
+                                        <button
+                                                type="button"
+                                                class="acknowledge-change-button"
+                                                data-reservation-id="${r.id}"
+                                        >
+                                                Acknowledge
+                                        </button>
+                                </div>
+                        `
+                        : "";
+
+        return `
+                <tr>
+                        <td>${r.expected_takeout_time || ""}</td>
+
+                        <td>
+                                ${r.first_name || ""}
+                                ${r.last_name || ""}
+                        </td>
+
+                        <td class="contact-cell">
+                                ${
+                                        r.phone
+                                                ? `<a href="tel:${r.phone}">${formatPhoneNumber(r.phone)}</a>`
+                                                : "No phone provided"
+                                }
+                                ${
+                                        r.email
+                                                ? `<br><small>${r.email}</small>`
+                                                : ""
+                                }
+                        </td>
+
+                        <td>
+                                ${r.launch_site || ""}
+                                →
+                                ${r.takeout_site || ""}
+                        </td>
+
+                        <td>
+                                ${r.vehicle_color || ""}
+                                ${r.vehicle_year || ""}
+                                ${r.vehicle_make || ""}
+                                ${r.vehicle_model || ""}
+                                <br>
+                                ${r.license_state || ""}
+                                ${
+                                        r.license_county
+                                                ? `${r.license_county}-`
+                                                : ""
+                                }
+                                ${r.license_plate || ""}
+                        </td>
+
+                        <td class="keys-cell">
+                                <strong>
+                                        ${r.key_location || "Not provided"}
+                                </strong>
+                                ${
+                                        r.key_location === "Other" &&
+                                        r.key_location_other
+                                                ? `<br><small>${r.key_location_other}</small>`
+                                                : ""
+                                }
+                        </td>
+
+                        <td>
+                                <select
+                                        class="driver-select"
+                                        data-id="${r.id}"
+                                >
+                                        ${driverOptions(r.driver)}
+                                </select>
+                        </td>
+
+                        <td>
+                                <select
+                                        class="status-select ${getStatusClass(r.status)}"
+                                        data-id="${r.id}"
+                                >
+                                        ${statusOptions(r.status)}
+                                </select>
+                        </td>
+
+                        <td
+                                class="elapsed-time ${getElapsedClass(r.status)}"
+                        >
+                                ${formatElapsedTime(
+                                        r.started_at,
+                                        r.completed_at,
+                                        r.status
+                                )}
+                        </td>
+
+                        <td>
+                                <div class="payment-method">
+                                        ${r.payment_method || "Not selected"}
+                                </div>
+
+                                <select
+                                        class="payment-select ${getPaymentClass(r.payment_status)}"
+                                        data-id="${r.id}"
+                                >
+                                        ${paymentOptions(r.payment_status)}
+                                </select>
+                        </td>
+
+                        <td>
+                                ${criticalAlert}
+
+                                <button
+                                        type="button"
+                                        class="edit-button"
+                                        data-reservation-id="${r.id}"
+                                >
+                                        Edit
+                                </button>
+
+                                <button
+                                        type="button"
+                                        class="photo-button"
+                                        data-reservation-id="${r.id}"
+                                >
+                                        Photos
+                                </button>
+                        </td>
+                </tr>
+        `;
+}).join("");
 	attachReservationListeners();
 }
 

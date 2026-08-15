@@ -1,4 +1,5 @@
 export const state = {
-	drivers: [],
-	reservations: [],
+        drivers: [],
+        reservations: [],
+        criticalChanges: [],
 };

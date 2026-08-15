@@ -36,3 +36,45 @@ export async function archiveCompletedReservations() {
 
         return response.json();
 }
+export async function fetchCriticalChanges() {
+        const response =
+                await fetch(
+                        "/api/reservations/critical-changes"
+                );
+
+        if (!response.ok) {
+                throw new Error(
+                        `Critical changes request failed with status ${response.status}`
+                );
+        }
+
+        return response.json();
+}
+
+export async function acknowledgeCriticalChanges(
+        reservationId
+) {
+        const response =
+                await fetch(
+                        "/api/reservations/acknowledge-changes",
+                        {
+                                method: "PATCH",
+                                headers: {
+                                        "Content-Type":
+                                                "application/json",
+                                },
+                                body: JSON.stringify({
+                                        id: reservationId,
+                                        acknowledged_by: "Staff",
+                                }),
+                        }
+                );
+
+        if (!response.ok) {
+                throw new Error(
+                        `Acknowledge request failed with status ${response.status}`
+                );
+        }
+
+        return response.json();
+}
