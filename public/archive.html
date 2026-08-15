@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S-RADs Archived Reservations</title>
+    <link rel="stylesheet" href="/index.css" />
+</head>
+
+<body>
+    <header>
+        <h1>Thermopolis Fly Shop</h1>
+        <h2>🚐 Shuttle Dispatch System</h2>
+        <p>Version <span data-app-version>Loading...</span></p>
+    </header>
+
+    <header class="app-header">
+        <div class="app-header-inner">
+            <a class="app-brand" href="/dashboard.html">
+                S-RADs
+            </a>
+
+            <nav class="app-nav" aria-label="Main navigation">
+                <a href="/dashboard.html">Dashboard</a>
+                <a class="active" href="/archive.html">Archive</a>
+                <a href="/payment-report.html">Payment Reports</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="card dashboard-card">
+            <h2>Archived Reservations</h2>
+
+            <p>
+                Completed and cancelled shuttles are stored here.
+                Restore a reservation before making changes to it.
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Route</th>
+                            <th>Vehicle</th>
+                            <th>Driver</th>
+                            <th>Status</th>
+                            <th>Archived</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="archive-table">
+                        <tr>
+                            <td colspan="8">
+                                Loading archived reservations...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="/js/archive.js"></script>
+</body>
+</html>
