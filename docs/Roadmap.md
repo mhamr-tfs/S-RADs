@@ -49,6 +49,7 @@ hardening, and production readiness.
 ### 0.4.0-beta — Limited Operational Release
 
 - [x] Square production cutover and validation
+- [x] Added staff edit functionality into the dashobard
 - [ ] First live customer shuttle
 - [ ] Validate customer reservation workflow under real conditions
 - [ ] Validate live payment workflow
