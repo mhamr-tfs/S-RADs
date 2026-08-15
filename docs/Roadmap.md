@@ -61,7 +61,7 @@ hardening, and production readiness.
 
 ### Beta Enhancements
 
-- [ ] Archive completed shuttles — 0.4.1-beta
+- [x] Archive completed shuttles — 0.4.1-beta
 - [ ] Cancelled reservation workflow — 0.4.2-beta
 - [ ] Better dashboard filtering — 0.4.3-beta
 - [ ] CSV export — 0.4.4-beta
