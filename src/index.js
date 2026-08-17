@@ -61,6 +61,9 @@ import {
 	handleInboundEmail
 } from "./email/email-inbound-api.js";
 
+import {
+        handleLodgingBenefitValidation
+} from "./benefits/lodging-benefit-handler.js";
 
 export default {
 	
@@ -490,6 +493,19 @@ if (
         url.pathname === "/api/integrations/sirvoy/webhook"
 ) {
         return handleSirvoyWebhook(
+                request,
+                env
+        );
+}
+// ======================================================
+// Lodging benefit validation
+// ======================================================
+if (
+        request.method === "POST" &&
+        url.pathname ===
+                "/api/benefits/lodging/validate"
+) {
+        return handleLodgingBenefitValidation(
                 request,
                 env
         );
