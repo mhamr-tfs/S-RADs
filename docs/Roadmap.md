@@ -63,9 +63,86 @@ hardening, and production readiness.
 
 - [x] Archive completed shuttles — 0.4.1-beta
 - [ ] Cancelled reservation workflow — 0.4.2-beta
-- [ ] Better dashboard filtering — 0.4.3-beta
-- [ ] CSV export — 0.4.4-beta
+- [x] Better dashboard filtering — 0.4.3-beta
+- [x] CSV export — 0.4.4-beta
 - [ ] Driver mobile capture — 0.4.5-beta
+
+## Phase 4 - Benefits and External Booking Validation
+
+### Sirvoy Integration
+
+- [ ] Create Sirvoy booking cache in D1
+- [ ] Create Sirvoy booking-event webhook endpoint
+- [ ] Validate webhook behavior using real Two Rivers bookings
+- [ ] Seed current/future bookings from Sirvoy-compatible export
+- [ ] Track booking source
+- [ ] Handle booking creation, modification, cancellation, and restoration
+- [ ] Prevent older webhook events from overwriting newer booking data
+
+### Two Rivers Guest Verification
+
+- [ ] Replace customer "Booked directly" checkbox with Sirvoy booking number
+- [ ] Validate Sirvoy booking number automatically
+- [ ] Determine direct-booking eligibility automatically
+- [ ] Eligible direct sources:
+    - Website
+    - Front desk
+- [ ] OTA/channel bookings do not qualify for complimentary shuttle
+- [ ] Do not require guest-name match
+- [ ] Do not require customer Sirvoy login
+
+Note: Sirvoy determines booking validity and eligibility. S-RADs determines benefit entitlement and tracks benefit consumption.
+### Two Rivers Complimentary Shuttle Rules
+
+Current policy:
+
+- One complimentary shuttle per night of stay
+- Complimentary shuttles do not bank/roll over
+- Check-in day may qualify
+- Checkout day may qualify
+- Checkout-day use does not create an additional entitlement
+- Shuttle must be associated with a valid active direct booking
+- S-RADs tracks benefit usage independently from Sirvoy
+
+Implementation:
+
+- [ ] Create motel benefit/claim ledger
+- [ ] Prevent duplicate use of the same nightly entitlement
+- [ ] Release entitlement when qualifying shuttle is cancelled
+- [ ] Preserve audit history of benefit use
+
+### Customer Loyalty Program
+
+Current policy:
+
+- Buy 9 qualifying paid shuttles
+- 10th shuttle is complimentary
+
+Implementation:
+
+- [ ] Create customer loyalty tracking
+- [ ] Determine customer identity/matching strategy
+- [ ] Track qualifying paid shuttle events
+- [ ] Track earned/redeemed complimentary shuttles
+- [ ] Handle cancellations/refunds correctly
+- [ ] Motel-included shuttles do not count as paid loyalty shuttles
+- [ ] Preserve loyalty audit history
+
+### Business Rules / Admin Configuration
+
+Build policy rules so they are configurable rather than hard-coded.
+
+- [ ] Benefits administration page
+- [ ] Enable/disable Two Rivers benefit
+- [ ] Configure complimentary shuttles per night
+- [ ] Configure check-in-day eligibility
+- [ ] Configure checkout-day eligibility
+- [ ] Configure rollover/banking behavior
+- [ ] Configure eligible Sirvoy booking sources
+- [ ] Enable/disable loyalty program
+- [ ] Configure number of paid shuttles required for reward
+- [ ] Configure reward amount/type
+- [ ] Configure which reservation/payment types count toward loyalty
 
 ---
 
