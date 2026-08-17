@@ -18,6 +18,10 @@ import {
 } from "./payments/square-service.js";
 
 import {
+        handleSirvoyWebhook
+} from "./integrations/sirvoy/sirvoy-webhook.js";
+
+import {
 	clearTestReservations,
 	loadDemoReservations
 } from "./dev-tools/dev-tools-service.js";
@@ -478,7 +482,18 @@ if (
 		env
 	);
 }
-
+// ======================================================
+// Sirvoy booking event webhook
+// ======================================================
+if (
+        request.method === "POST" &&
+        url.pathname === "/api/integrations/sirvoy/webhook"
+) {
+        return handleSirvoyWebhook(
+                request,
+                env
+        );
+}
 // ======================================================
 // Resend inbound email webhook
 // ======================================================

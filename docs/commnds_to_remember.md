@@ -17,3 +17,7 @@ npx wrangler d1 execute tfs_shuttles_database --command "SELECT name FROM sqlite
 Check reservation schema
 ------------------------
 npx wrangler d1 execute tfs_shuttles_database --command "PRAGMA table_info(reservations);"
+
+Start a tunnel
+---------------
+cloudflared tunnel --url http://localhost:8787                       
