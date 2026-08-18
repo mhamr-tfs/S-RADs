@@ -1,4 +1,5 @@
 let routes = [];
+let lodgingBenefitVerified = false;
 
 function loadRoutes() {
 	fetch("/api/routes")
@@ -120,39 +121,232 @@ document
 	});
 
 const guestCheckbox =
-	document.querySelector(
-		'[name="is_two_rivers_guest"]'
-	);
+        document.getElementById(
+                "is-two-rivers-guest"
+        );
 
-const directBookingCheckbox =
-	document.querySelector(
-		'[name="two_rivers_direct_booking"]'
-	);
+const bookingSection =
+        document.getElementById(
+                "two-rivers-booking-section"
+        );
+
+const bookingNumberInput =
+        document.getElementById(
+                "sirvoy-booking-number"
+        );
+
+const verifyBookingButton =
+        document.getElementById(
+                "verify-two-rivers-booking"
+        );
+
+const lodgingValidationMessage =
+        document.getElementById(
+                "lodging-validation-message"
+        );
 
 guestCheckbox.addEventListener(
-	"change",
-	function () {
-		if (guestCheckbox.checked) {
-			directBookingCheckbox.disabled =
-				false;
-		} else {
-			directBookingCheckbox.checked =
-				false;
+        "change",
+        () => {
+                lodgingBenefitVerified = false;
 
-			directBookingCheckbox.disabled =
-				true;
-		}
+                if (guestCheckbox.checked) {
+                        bookingSection.hidden = false;
+                } else {
+                        bookingSection.hidden = true;
+                        bookingNumberInput.value = "";
+                        lodgingValidationMessage.textContent = "";
+                }
 
-		updatePaymentCalculator();
+                updatePaymentCalculator();
+        }
+);
+verifyBookingButton.addEventListener(
+        "click",
+        async () => {
+                const bookingId =
+                        bookingNumberInput.value.trim();
+
+                const shuttleDate =
+                        document.querySelector(
+                                '[name="shuttle_date"]'
+                        ).value;
+
+                lodgingBenefitVerified = false;
+
+                if (!bookingId) {
+                        lodgingValidationMessage.textContent =
+                                "Enter your Two Rivers booking number.";
+
+                        updatePaymentCalculator();
+                        return;
+                }
+
+                if (!shuttleDate) {
+                        lodgingValidationMessage.textContent =
+                                "Select your shuttle date before verifying the motel booking.";
+
+                        updatePaymentCalculator();
+                        return;
+                }
+
+                lodgingValidationMessage.textContent =
+                        "Verifying booking...";
+
+                try {
+                        const response =
+                                await fetch(
+                                        "/api/benefits/lodging/validate",
+                                        {
+                                                method: "POST",
+
+                                                headers: {
+                                                        "Content-Type":
+                                                                "application/json",
+                                                },
+
+                                                body: JSON.stringify({
+                                                        bookingId,
+                                                        shuttleDate,
+                                                }),
+                                        }
+                                );
+
+                        const result =
+                                await response.json();
+
+                        if (!response.ok) {
+                                throw new Error(
+                                        "Unable to verify booking."
+                                );
+                        }
+
+                        if (!result.valid) {
+                                lodgingValidationMessage.textContent =
+                                        "We could not verify that Two Rivers booking number.";
+
+                                updatePaymentCalculator();
+                                
+                        }
+
+                        if (!result.eligible) {
+                                if (
+                                        result.reason ===
+                                        "not_direct_booking"
+                                ) {
+                                        lodgingValidationMessage.textContent =
+                                                "Your motel reservation is valid, but complimentary shuttle service is available only for reservations booked directly with Two Rivers Inn.";
+                                } else if (
+                                        result.reason ===
+                                        "booking_cancelled"
+                                ) {
+                                        lodgingValidationMessage.textContent =
+                                                "That Two Rivers reservation has been cancelled.";
+                                } else if (
+                                        result.reason ===
+                                        "outside_stay_dates"
+                                ) {
+                                        lodgingValidationMessage.textContent =
+                                                "The shuttle date is outside the dates of this motel stay.";
+                                } else {
+                                        lodgingValidationMessage.textContent =
+                                                "This motel reservation does not qualify for complimentary shuttle service.";
+                                }
+
+                                updatePaymentCalculator();
+                                return;
+                        }
+
+                        if (
+                                result.benefitAvailable ===
+                                false
+                        ) {
+                                lodgingValidationMessage.textContent =
+                                        "This reservation qualifies, but the complimentary shuttle allowance for this date has already been used.";
+
+                                updatePaymentCalculator();
+                                return;
+                        }
+
+                        lodgingBenefitVerified = true;
+
+                        lodgingValidationMessage.textContent =
+                                "✓ Two Rivers reservation verified. This shuttle is included with your stay.";
+
+                        updatePaymentCalculator();
+                } catch (error) {
+        console.error(
+                "Two Rivers booking verification failed:",
+                error
+        );
+
+        lodgingValidationMessage.textContent =
+                "We could not verify the motel booking right now. Please try again.";
+
+        updatePaymentCalculator();
+			}
 	}
 );
 
-directBookingCheckbox.addEventListener(
-	"change",
-	updatePaymentCalculator
+function updatePaymentCalculator() {
+        const price =
+                Number(
+                        document.getElementById(
+                                "price"
+                        ).value || 0
+                );
+
+        const amountDue =
+                document.getElementById(
+                        "amount-due"
+                );
+
+        const paymentNote =
+                document.getElementById(
+                        "payment-note"
+                );
+
+        if (
+                guestCheckbox.checked &&
+                lodgingBenefitVerified
+        ) {
+                amountDue.textContent =
+                        "$0.00";
+
+                paymentNote.textContent =
+                        "Payment included: verified Two Rivers Inn reservation.";
+
+                return;
+        }
+
+        amountDue.textContent =
+                `$${price.toFixed(2)}`;
+
+        paymentNote.textContent = "";
+}
+bookingNumberInput.addEventListener(
+        "input",
+        () => {
+                lodgingBenefitVerified = false;
+                lodgingValidationMessage.textContent = "";
+                updatePaymentCalculator();
+        }
 );
 
 document
+        .querySelector(
+                '[name="shuttle_date"]'
+        )
+        .addEventListener(
+                "change",
+                () => {
+                        lodgingBenefitVerified = false;
+                        lodgingValidationMessage.textContent = "";
+                        updatePaymentCalculator();
+                }
+        );
+
+		document
 	.getElementById("reservation-form")
 	.addEventListener(
 		"submit",
@@ -179,13 +373,13 @@ document
 				)
 					? "Yes"
 					: "No";
+reservation.two_rivers_direct_booking =
+        lodgingBenefitVerified
+                ? "Yes"
+                : "No";
 
-			reservation.two_rivers_direct_booking =
-				formData.has(
-					"two_rivers_direct_booking"
-				)
-					? "Yes"
-					: "No";
+reservation.sirvoy_booking_number =
+        bookingNumberInput.value.trim();
 
 			reservation.is_guide = "No";
 
@@ -270,12 +464,9 @@ document
 				}
 
 				const shouldUseSquare =
-	reservation.payment_method === "Square" &&
-	data.reservation_id &&
-	!(
-		reservation.is_two_rivers_guest === "Yes" &&
-		reservation.two_rivers_direct_booking === "Yes"
-	);
+        reservation.payment_method === "Square" &&
+        data.reservation_id &&
+        !lodgingBenefitVerified;
 
 if (shouldUseSquare) {
 	message.textContent =
@@ -319,18 +510,17 @@ message.textContent =
 		: "Reservation submitted successfully.";
 
 form.reset();
+lodgingBenefitVerified = false;
+
+bookingSection.hidden = true;
+bookingNumberInput.value = "";
+lodgingValidationMessage.textContent = "";
 
 				document.getElementById(
 					"license-county-group"
 				).style.display = "none";
 
-				directBookingCheckbox.checked =
-					false;
-
-				directBookingCheckbox.disabled =
-					true;
-
-				document.getElementById(
+								document.getElementById(
 					"route-price"
 				).textContent = "$0.00";
 

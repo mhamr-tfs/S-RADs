@@ -281,24 +281,45 @@
 
 					<h4>Two Rivers Inn</h4>
 
-					<label>
-						<input
-							type="checkbox"
-							name="is_two_rivers_guest"
-							value="Yes"
-						/>
-						Guest of Two Rivers Inn
-					</label>
+<label>
+        <input
+                id="is-two-rivers-guest"
+                type="checkbox"
+                name="is_two_rivers_guest"
+                value="Yes"
+        />
+        Guest of Two Rivers Inn
+</label>
 
-					<label>
-						<input
-							type="checkbox"
-							name="two_rivers_direct_booking"
-							value="Yes"
-							disabled
-						/>
-						Booked directly with Two Rivers Inn
-					</label>
+<div
+        id="two-rivers-booking-section"
+        hidden
+>
+        <label class="field-group">
+                <span>Two Rivers booking number</span>
+
+                <input
+                        id="sirvoy-booking-number"
+                        name="sirvoy_booking_number"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        placeholder="Booking number from your confirmation email or receipt"
+                />
+        </label>
+
+        <button
+                id="verify-two-rivers-booking"
+                type="button"
+        >
+                Verify Booking
+        </button>
+
+        <p
+                id="lodging-validation-message"
+                class="help-text"
+        ></p>
+</div>
 
 					<h4>Payment</h4>
 
