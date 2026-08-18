@@ -48,6 +48,14 @@ export async function handleLodgingBenefitValidation(
                                                 body.shuttleDate,
                                 }
                         );
+                if (!result.eligible) {
+        return Response.json(
+                result,
+                {
+                        status: 200,
+                }
+        );
+}
 const availability =
         await checkLodgingBenefitAvailability(
                 env,

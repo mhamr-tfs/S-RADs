@@ -1,0 +1,5 @@
+Booking ID,Check-in,Check-out,Internal note,Confirmed
+TEST-3001,2026-09-01,2026-09-03,Front desk,Yes
+TEST-3002,2026-09-05,2026-09-07,Website,Yes
+TEST-3003,2026-09-10,2026-09-11,Booking.com,Yes
+TEST-3004,2026-09-12,2026-09-14,Expedia Hotel Collect,No
