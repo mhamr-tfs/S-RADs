@@ -44,12 +44,12 @@ hardening, and production readiness.
 
 ---
 
-## Phase 4 - Operational Beta
+## Phase 4 - Operational Beta and Benefits and External Booking Validation
 
 ### 0.4.0-beta — Limited Operational Release
 
 - [x] Square production cutover and validation
-- [x] Added staff edit functionality into the dashobard
+- [x] Added staff edit functionality into the dashboard
 - [ ] First live customer shuttle
 - [ ] Validate customer reservation workflow under real conditions
 - [ ] Validate live payment workflow
@@ -64,32 +64,30 @@ hardening, and production readiness.
 - [x] Archive completed shuttles — 0.4.1-beta
 - [ ] Cancelled reservation workflow — 0.4.2-beta
 - [x] Better dashboard filtering — 0.4.3-beta
-- [x] CSV export — 0.4.4-beta
+- [x] CSV/Excel export — 0.4.4-beta
 - [ ] Driver mobile capture — 0.4.5-beta
-
-## Phase 4 - Benefits and External Booking Validation
 
 ### Sirvoy Integration
 
-- [ ] Create Sirvoy booking cache in D1
-- [ ] Create Sirvoy booking-event webhook endpoint
-- [ ] Validate webhook behavior using real Two Rivers bookings
-- [ ] Seed current/future bookings from Sirvoy-compatible export
-- [ ] Track booking source
-- [ ] Handle booking creation, modification, cancellation, and restoration
-- [ ] Prevent older webhook events from overwriting newer booking data
+- [x] Create Sirvoy booking cache in D1
+- [x] Create Sirvoy booking-event webhook endpoint
+- [x] Validate webhook behavior using real Two Rivers bookings
+- [x] Seed current/future bookings from Sirvoy-compatible export
+- [x] Track booking source
+- [x] Handle booking creation, modification, cancellation, and restoration
+- [x] Prevent older webhook events from overwriting newer booking data
 
 ### Two Rivers Guest Verification
 
-- [ ] Replace customer "Booked directly" checkbox with Sirvoy booking number
-- [ ] Validate Sirvoy booking number automatically
-- [ ] Determine direct-booking eligibility automatically
-- [ ] Eligible direct sources:
+- [x] Replace customer "Booked directly" checkbox with Sirvoy booking number
+- [x] Validate Sirvoy booking number automatically
+- [x] Determine direct-booking eligibility automatically
+- [x] Eligible direct sources:
     - Website
     - Front desk
-- [ ] OTA/channel bookings do not qualify for complimentary shuttle
-- [ ] Do not require guest-name match
-- [ ] Do not require customer Sirvoy login
+- [x] OTA/channel bookings do not qualify for complimentary shuttle
+- [x] Do not require guest-name match
+- [x] Do not require customer Sirvoy login
 
 Note: Sirvoy determines booking validity and eligibility. S-RADs determines benefit entitlement and tracks benefit consumption.
 ### Two Rivers Complimentary Shuttle Rules
@@ -106,10 +104,11 @@ Current policy:
 
 Implementation:
 
-- [ ] Create motel benefit/claim ledger
-- [ ] Prevent duplicate use of the same nightly entitlement
-- [ ] Release entitlement when qualifying shuttle is cancelled
-- [ ] Preserve audit history of benefit use
+- [x] Create motel benefit/claim ledger
+- [x] Prevent duplicate use of the same nightly entitlement
+- [x] Release entitlement when qualifying shuttle is cancelled
+- [x] Preserve audit history of benefit use
+- [ ] Full customer reservation integration
 
 ### Customer Loyalty Program
 
