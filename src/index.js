@@ -127,12 +127,13 @@ if (
 	const reservation = await request.json();
 
 	const {
-		reservationId,
-		paymentStatus
-	} = await createReservation(
-		env,
-		reservation
-	);
+        reservationId,
+        paymentStatus,
+        lodgingBenefitApplied
+} = await createReservation(
+        env,
+        reservation
+);
 
 	try {
 		await sendReservationConfirmation(
@@ -162,10 +163,13 @@ try {
 }
 
 	return Response.json({
-		success: true,
-		message: "Reservation created",
-		reservation_id: reservationId,
-	});
+        success: true,
+        message: "Reservation created",
+        reservation_id: reservationId,
+        payment_status: paymentStatus,
+        lodging_benefit_applied:
+                lodgingBenefitApplied,
+});
 }
 		if (
 	url.pathname === "/api/reservations" &&

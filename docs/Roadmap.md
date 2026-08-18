@@ -108,7 +108,7 @@ Implementation:
 - [x] Prevent duplicate use of the same nightly entitlement
 - [x] Release entitlement when qualifying shuttle is cancelled
 - [x] Preserve audit history of benefit use
-- [ ] Full customer reservation integration
+- [x] Full customer reservation integration
 
 ### Customer Loyalty Program
 

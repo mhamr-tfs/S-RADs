@@ -1,3 +1,16 @@
+import {
+        validateLodgingBenefit
+} from "../benefits/lodging-benefit-service.js";
+
+import {
+        checkLodgingBenefitAvailability,
+        claimLodgingBenefit
+} from "../benefits/lodging-claim-service.js";
+
+import {
+        createSirvoyBenefitProvider
+} from "../integrations/sirvoy/sirvoy-benefit-provider.js";
+
 // ======================================================
 // Reservation Service
 // ======================================================
@@ -17,86 +30,240 @@ export async function getReservations(env) {
 // Create reservation
 // ======================================================
 export async function createReservation(
-	env,
-	reservation
+        env,
+        reservation
 ) {
-	const paymentStatus =
-		reservation.is_two_rivers_guest === "Yes" &&
-		reservation.two_rivers_direct_booking === "Yes"
-			? "Included"
-			: "Pending";
+        let paymentStatus =
+                "Pending";
 
-	const paymentReason =
-		paymentStatus === "Included"
-			? "Two Rivers Inn direct booking"
-			: null;
+        let paymentReason =
+                null;
 
-	const result = await env.DB.prepare(`
-		INSERT INTO reservations (
-			first_name,
-			last_name,
-			phone,
-			email,
-			shuttle_date,
-			expected_takeout_time,
-			launch_site,
-			takeout_site,
-			vehicle_year,
-			vehicle_make,
-			vehicle_model,
-			vehicle_color,
-			license_plate,
-			license_state,
-			license_county,
-			key_location,
-			key_location_other,
-			special_instructions,
-			is_two_rivers_guest,
-			two_rivers_direct_booking,
-			is_guide,
-			price,
-			payment_method,
-			payment_status,
-			payment_reason,
-			cash_location
-		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`)
-		.bind(
-			reservation.first_name,
-			reservation.last_name,
-			reservation.phone,
-			reservation.email,
-			reservation.shuttle_date,
-			reservation.expected_takeout_time,
-			reservation.launch_site,
-			reservation.takeout_site,
-			reservation.vehicle_year,
-			reservation.vehicle_make,
-			reservation.vehicle_model,
-			reservation.vehicle_color,
-			reservation.license_plate,
-			reservation.license_state,
-			reservation.license_county,
-			reservation.key_location,
-			reservation.key_location_other,
-			reservation.special_instructions,
-			reservation.is_two_rivers_guest || "No",
-			reservation.two_rivers_direct_booking || "No",
-			reservation.is_guide || "No",
-			Number(reservation.price || 0),
-			reservation.payment_method,
-			paymentStatus,
-			paymentReason,
-			reservation.cash_location
-		)
-		.run();
+        let directBooking =
+                "No";
 
-	return {
-		reservationId:
-			result.meta.last_row_id,
-		paymentStatus,
-	};
+        let benefitDate =
+                null;
+
+        let lodgingBenefitApproved =
+                false;
+
+        const isTwoRiversGuest =
+                reservation.is_two_rivers_guest ===
+                "Yes";
+
+        const bookingId =
+                String(
+                        reservation.sirvoy_booking_number ??
+                                ""
+                ).trim();
+
+        /*
+         * Never trust the browser's
+         * two_rivers_direct_booking value.
+         *
+         * If the customer claims the motel
+         * benefit, validate it again here.
+         */
+        if (
+                isTwoRiversGuest &&
+                bookingId
+        ) {
+                const provider =
+                        createSirvoyBenefitProvider(
+                                env
+                        );
+
+                const validation =
+                        await validateLodgingBenefit(
+                                provider,
+                                {
+                                        bookingId,
+                                        shuttleDate:
+                                                reservation.shuttle_date,
+                                }
+                        );
+
+                if (
+                        validation.valid &&
+                        validation.eligible
+                ) {
+                        directBooking =
+                                "Yes";
+
+                        const availability =
+                                await checkLodgingBenefitAvailability(
+                                        env,
+                                        {
+                                                provider:
+                                                        "sirvoy",
+
+                                                externalBookingId:
+                                                        bookingId,
+
+                                                shuttleDate:
+                                                        reservation.shuttle_date,
+
+                                                arrivalDate:
+                                                        validation.arrivalDate,
+
+                                                departureDate:
+                                                        validation.departureDate,
+                                        }
+                                );
+
+                        if (
+                                availability.available
+                        ) {
+                                benefitDate =
+                                        availability.benefitDate;
+
+                                lodgingBenefitApproved =
+                                        true;
+                        }
+                }
+        }
+
+        /*
+         * Create the reservation as Pending first.
+         *
+         * Only after we successfully claim the
+         * lodging entitlement do we change the
+         * reservation to Included.
+         *
+         * This protects us if two requests try
+         * to claim the same benefit simultaneously.
+         */
+        const result =
+                await env.DB.prepare(`
+                        INSERT INTO reservations (
+                                first_name,
+                                last_name,
+                                phone,
+                                email,
+                                shuttle_date,
+                                expected_takeout_time,
+                                launch_site,
+                                takeout_site,
+                                vehicle_year,
+                                vehicle_make,
+                                vehicle_model,
+                                vehicle_color,
+                                license_plate,
+                                license_state,
+                                license_county,
+                                key_location,
+                                key_location_other,
+                                special_instructions,
+                                is_two_rivers_guest,
+                                two_rivers_direct_booking,
+                                is_guide,
+                                price,
+                                payment_method,
+                                payment_status,
+                                payment_reason,
+                                cash_location
+                        )
+                        VALUES (
+                                ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                                ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                                ?, ?, ?, ?, ?, ?, ?, ?
+                        )
+                `)
+                        .bind(
+                                reservation.first_name,
+                                reservation.last_name,
+                                reservation.phone,
+                                reservation.email,
+                                reservation.shuttle_date,
+                                reservation.expected_takeout_time,
+                                reservation.launch_site,
+                                reservation.takeout_site,
+                                reservation.vehicle_year,
+                                reservation.vehicle_make,
+                                reservation.vehicle_model,
+                                reservation.vehicle_color,
+                                reservation.license_plate,
+                                reservation.license_state,
+                                reservation.license_county,
+                                reservation.key_location,
+                                reservation.key_location_other,
+                                reservation.special_instructions,
+                                reservation.is_two_rivers_guest ||
+                                        "No",
+                                directBooking,
+                                reservation.is_guide ||
+                                        "No",
+                                Number(
+                                        reservation.price ||
+                                                0
+                                ),
+                                reservation.payment_method,
+                                paymentStatus,
+                                paymentReason,
+                                reservation.cash_location
+                        )
+                        .run();
+
+        const reservationId =
+                result.meta.last_row_id;
+
+        /*
+         * Attempt the actual benefit claim.
+         *
+         * The unique D1 index is the final
+         * protection against duplicate claims.
+         */
+        if (
+                lodgingBenefitApproved &&
+                benefitDate
+        ) {
+                const claim =
+                        await claimLodgingBenefit(
+                                env,
+                                {
+                                        provider:
+                                                "sirvoy",
+
+                                        externalBookingId:
+                                                bookingId,
+
+                                        reservationId,
+                                        benefitDate,
+                                }
+                        );
+
+                if (claim.success) {
+                        paymentStatus =
+                                "Included";
+
+                        paymentReason =
+                                "Two Rivers Inn verified direct booking";
+
+                        await env.DB.prepare(`
+                                UPDATE reservations
+                                SET
+                                        payment_status = ?,
+                                        payment_reason = ?,
+                                        two_rivers_direct_booking = 'Yes'
+                                WHERE id = ?
+                        `)
+                                .bind(
+                                        paymentStatus,
+                                        paymentReason,
+                                        reservationId
+                                )
+                                .run();
+                }
+        }
+
+        return {
+                reservationId,
+                paymentStatus,
+                lodgingBenefitApplied:
+                        paymentStatus ===
+                        "Included",
+        };
 }
 // ======================================================
 // Update reservation

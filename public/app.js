@@ -262,8 +262,7 @@ verifyBookingButton.addEventListener(
                                 false
                         ) {
                                 lodgingValidationMessage.textContent =
-                                        "This reservation qualifies, but the complimentary shuttle allowance for this date has already been used.";
-
+      									  "This reservation is valid, but the complimentary shuttle benefit for this stay date has already been used. Regular shuttle pricing applies.";
                                 updatePaymentCalculator();
                                 return;
                         }
@@ -466,7 +465,7 @@ reservation.sirvoy_booking_number =
 				const shouldUseSquare =
         reservation.payment_method === "Square" &&
         data.reservation_id &&
-        !lodgingBenefitVerified;
+        !data.lodging_benefit_applied;
 
 if (shouldUseSquare) {
 	message.textContent =
