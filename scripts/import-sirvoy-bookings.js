@@ -416,11 +416,7 @@ WHERE
 }
 
 const sql =
-        [
-                "BEGIN TRANSACTION;",
-                ...statements,
-                "COMMIT;",
-        ].join("\n");
+        statements.join("\n");
 
 const outputDirectory =
         path.join(
