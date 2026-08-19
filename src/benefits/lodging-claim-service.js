@@ -1,3 +1,7 @@
+import {
+        getBusinessSettings
+} from "../settings/settings-service.js";
+
 function previousDate(dateString) {
         const date =
                 new Date(
@@ -17,6 +21,8 @@ export function calculateBenefitDate({
         shuttleDate,
         arrivalDate,
         departureDate,
+        allowCheckinDay = true,
+        allowCheckoutDay = true,
 }) {
         if (
                 shuttleDate < arrivalDate ||
@@ -26,8 +32,19 @@ export function calculateBenefitDate({
         }
 
         if (
+                shuttleDate === arrivalDate &&
+                !allowCheckinDay
+        ) {
+                return null;
+        }
+
+        if (
                 shuttleDate === departureDate
         ) {
+                if (!allowCheckoutDay) {
+                        return null;
+                }
+
                 return previousDate(
                         departureDate
                 );
@@ -46,13 +63,43 @@ export async function checkLodgingBenefitAvailability(
                 departureDate,
         }
 ) {
-        const benefitDate =
+                const settings =
+                await getBusinessSettings(
+                        env
+                );
+
+        const benefitEnabled =
+                settings
+                        .lodging_benefit_enabled
+                        ?.value ?? true;
+
+        const allowCheckinDay =
+                settings
+                        .lodging_allow_checkin_day
+                        ?.value ?? true;
+
+        const allowCheckoutDay =
+                settings
+                        .lodging_allow_checkout_day
+                        ?.value ?? true;
+
+        if (!benefitEnabled) {
+                return {
+                        available: false,
+                        reason:
+                                "benefit_disabled",
+                        benefitDate: null,
+                };
+        }
+                const benefitDate =
                 calculateBenefitDate({
                         shuttleDate,
                         arrivalDate,
                         departureDate,
+                        allowCheckinDay,
+                        allowCheckoutDay,
                 });
-
+                
         if (!benefitDate) {
                 return {
                         available: false,

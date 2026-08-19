@@ -257,15 +257,24 @@ verifyBookingButton.addEventListener(
                                 return;
                         }
 
-                        if (
-                                result.benefitAvailable ===
-                                false
-                        ) {
-                                lodgingValidationMessage.textContent =
-      									  "This reservation is valid, but the complimentary shuttle benefit for this stay date has already been used. Regular shuttle pricing applies.";
-                                updatePaymentCalculator();
-                                return;
-                        }
+if (
+        result.benefitAvailable ===
+        false
+) {
+        if (
+                result.benefitReason ===
+                "benefit_disabled"
+        ) {
+                lodgingValidationMessage.textContent =
+                        "Complimentary shuttle service is not currently available. Regular shuttle pricing applies.";
+        } else {
+                lodgingValidationMessage.textContent =
+                        "This reservation is valid, but the complimentary shuttle benefit for this stay date has already been used. Regular shuttle pricing applies.";
+        }
+
+        updatePaymentCalculator();
+        return;
+}
 
                         lodgingBenefitVerified = true;
 

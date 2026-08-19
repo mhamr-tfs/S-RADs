@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8" />
+        <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+        />
+
+        <title>S-RADs Business Rules</title>
+
+        <link
+                rel="stylesheet"
+                href="/index.css"
+        />
+</head>
+
+<body>
+        <main class="container">
+                <section class="card">
+                        <h1>S-RADs Business Rules</h1>
+
+                        <p>
+                                Configure operational business rules.
+                                Changes affect how S-RADs applies
+                                complimentary shuttle benefits and
+                                loyalty rewards.
+                        </p>
+                        <p>Version <span data-app-version>Loading...</span></p>
+                </section>
+
+                <body>
+    
+
+                <section class="card">
+                        <h2>Two Rivers Inn Benefit</h2>
+
+                        <label>
+                                <input
+                                        id="lodging-benefit-enabled"
+                                        type="checkbox"
+                                />
+                                Enable complimentary lodging shuttle benefit
+                        </label>
+
+                        <div class="form-grid">
+                                <label>
+                                        Complimentary shuttles per night
+
+                                        <input
+                                                id="lodging-shuttles-per-night"
+                                                type="number"
+                                                min="0"
+                                                max="10"
+                                                step="1"
+                                        />
+                                </label>
+                        </div>
+
+                        <label>
+                                <input
+                                        id="lodging-allow-checkin-day"
+                                        type="checkbox"
+                                />
+                                Allow complimentary shuttle on check-in day
+                        </label>
+
+                        <label>
+                                <input
+                                        id="lodging-allow-checkout-day"
+                                        type="checkbox"
+                                />
+                                Allow complimentary shuttle on checkout day
+                        </label>
+
+                        <label>
+                                <input
+                                        id="lodging-allow-rollover"
+                                        type="checkbox"
+                                />
+                                Allow unused complimentary benefits to roll over
+                        </label>
+                </section>
+
+                <section class="card">
+                        <h2>Customer Loyalty Program</h2>
+
+                        <label>
+                                <input
+                                        id="loyalty-enabled"
+                                        type="checkbox"
+                                />
+                                Enable loyalty program
+                        </label>
+
+                        <div class="form-grid">
+                                <label>
+                                        Paid shuttles required
+
+                                        <input
+                                                id="loyalty-paid-shuttles-required"
+                                                type="number"
+                                                min="1"
+                                                max="100"
+                                                step="1"
+                                        />
+                                </label>
+
+                                <label>
+                                        Complimentary reward shuttles
+
+                                        <input
+                                                id="loyalty-reward-shuttles"
+                                                type="number"
+                                                min="1"
+                                                max="10"
+                                                step="1"
+                                        />
+                                </label>
+                        </div>
+                </section>
+
+                <section class="card">
+                        <button
+                                id="save-settings"
+                                type="button"
+                        >
+                                Save Settings
+                        </button>
+
+                        <p id="settings-status"></p>
+                </section>
+        </main>
+    
+        <script
+                type="module"
+                src="/js/admin-settings.js"
+        ></script>
+            
+</body>
+</html>

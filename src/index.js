@@ -65,6 +65,11 @@ import {
         handleLodgingBenefitValidation
 } from "./benefits/lodging-benefit-handler.js";
 
+import {
+        handleGetBusinessSettings,
+        handleUpdateBusinessSettings
+} from "./settings/settings-api.js";
+
 export default {
 	
 	async fetch(request, env, ctx) {
@@ -73,6 +78,27 @@ export default {
 	return new Response(null, {
 		status: 204,
 	});
+}
+// ======================================================
+// Admin business settings
+// ======================================================
+if (
+        request.method === "GET" &&
+        url.pathname === "/api/admin/settings"
+) {
+        return handleGetBusinessSettings(
+                env
+        );
+}
+
+if (
+        request.method === "PATCH" &&
+        url.pathname === "/api/admin/settings"
+) {
+        return handleUpdateBusinessSettings(
+                request,
+                env
+        );
 }
 // ======================================================
 // Staff edit reservation details
