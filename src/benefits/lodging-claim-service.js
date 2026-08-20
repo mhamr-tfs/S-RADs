@@ -49,6 +49,38 @@ export function calculateBenefitDate({
                         departureDate
                 );
         }
+        function dateRange(
+        startDate,
+        endDate
+) {
+        const dates = [];
+
+        const current =
+                new Date(
+                        `${startDate}T00:00:00Z`
+                );
+
+        const end =
+                new Date(
+                        `${endDate}T00:00:00Z`
+                );
+
+        while (
+                current <= end
+        ) {
+                dates.push(
+                        current
+                                .toISOString()
+                                .slice(0, 10)
+                );
+
+                current.setUTCDate(
+                        current.getUTCDate() + 1
+                );
+        }
+
+        return dates;
+}
 
         return shuttleDate;
 }
@@ -63,7 +95,7 @@ export async function checkLodgingBenefitAvailability(
                 departureDate,
         }
 ) {
-                const settings =
+        const settings =
                 await getBusinessSettings(
                         env
                 );
@@ -83,6 +115,63 @@ export async function checkLodgingBenefitAvailability(
                         .lodging_allow_checkout_day
                         ?.value ?? true;
 
+        const shuttlesPerNight =
+                settings
+                        .lodging_shuttles_per_night
+                        ?.value ?? 1;
+
+        for (
+        const candidateDate of
+        candidateBenefitDates
+) {
+        const existing =
+                await env.DB.prepare(`
+                        SELECT
+                                COUNT(*) AS claim_count
+                        FROM lodging_benefit_claims
+                        WHERE provider = ?
+                          AND external_booking_id = ?
+                          AND benefit_date = ?
+                          AND status = 'claimed'
+                `)
+                        .bind(
+                                provider,
+                                externalBookingId,
+                                candidateDate
+                        )
+                        .first();
+
+        const claimCount =
+                Number(
+                        existing?.claim_count ?? 0
+                );
+
+        if (
+                claimCount <
+                shuttlesPerNight
+        ) {
+                return {
+                        available: true,
+                        reason:
+                                "benefit_available",
+                        benefitDate:
+                                candidateDate,
+                        claimCount,
+                        limit:
+                                shuttlesPerNight,
+                };
+        }
+}
+
+return {
+        available: false,
+        reason:
+                "benefit_limit_reached",
+        benefitDate,
+        limit:
+                shuttlesPerNight,
+};
+
         if (!benefitEnabled) {
                 return {
                         available: false,
@@ -91,7 +180,8 @@ export async function checkLodgingBenefitAvailability(
                         benefitDate: null,
                 };
         }
-                const benefitDate =
+
+        const benefitDate =
                 calculateBenefitDate({
                         shuttleDate,
                         arrivalDate,
@@ -99,7 +189,7 @@ export async function checkLodgingBenefitAvailability(
                         allowCheckinDay,
                         allowCheckoutDay,
                 });
-                
+
         if (!benefitDate) {
                 return {
                         available: false,
@@ -112,16 +202,12 @@ export async function checkLodgingBenefitAvailability(
         const existing =
                 await env.DB.prepare(`
                         SELECT
-                                id,
-                                reservation_id,
-                                benefit_date,
-                                status
+                                COUNT(*) AS claim_count
                         FROM lodging_benefit_claims
                         WHERE provider = ?
                           AND external_booking_id = ?
                           AND benefit_date = ?
                           AND status = 'claimed'
-                        LIMIT 1
                 `)
                         .bind(
                                 provider,
@@ -130,14 +216,24 @@ export async function checkLodgingBenefitAvailability(
                         )
                         .first();
 
-        if (existing) {
+        const claimCount =
+                Number(
+                        existing?.claim_count ?? 0
+                );
+        
+
+        if (
+                claimCount >=
+                shuttlesPerNight
+        ) {
                 return {
                         available: false,
                         reason:
-                                "benefit_already_claimed",
+                                "benefit_limit_reached",
                         benefitDate,
-                        claimId:
-                                existing.id,
+                        claimCount,
+                        limit:
+                                shuttlesPerNight,
                 };
         }
 
@@ -146,6 +242,9 @@ export async function checkLodgingBenefitAvailability(
                 reason:
                         "benefit_available",
                 benefitDate,
+                claimCount,
+                limit:
+                        shuttlesPerNight,
         };
 }
 
@@ -158,48 +257,80 @@ export async function claimLodgingBenefit(
                 benefitDate,
         }
 ) {
-        try {
-                const result =
-                        await env.DB.prepare(`
-                                INSERT INTO lodging_benefit_claims (
-                                        provider,
-                                        external_booking_id,
-                                        reservation_id,
-                                        benefit_date,
-                                        status
-                                )
-                                VALUES (?, ?, ?, ?, 'claimed')
-                        `)
-                                .bind(
-                                        provider,
-                                        externalBookingId,
-                                        reservationId,
-                                        benefitDate
-                                )
-                                .run();
+        const settings =
+                await getBusinessSettings(
+                        env
+                );
 
-                return {
-                        success: true,
-                        claimId:
-                                result.meta.last_row_id,
-                };
-        } catch (error) {
-                if (
-                        String(
-                                error.message ?? error
-                        ).includes(
-                                "UNIQUE constraint failed"
+        const shuttlesPerNight =
+                settings
+                        .lodging_shuttles_per_night
+                        ?.value ?? 1;
+
+        const existing =
+                await env.DB.prepare(`
+                        SELECT
+                                COUNT(*) AS claim_count
+                        FROM lodging_benefit_claims
+                        WHERE provider = ?
+                          AND external_booking_id = ?
+                          AND benefit_date = ?
+                          AND status = 'claimed'
+                `)
+                        .bind(
+                                provider,
+                                externalBookingId,
+                                benefitDate
                         )
-                ) {
-                        return {
-                                success: false,
-                                reason:
-                                        "benefit_already_claimed",
-                        };
-                }
+                        .first();
 
-                throw error;
+        const claimCount =
+                Number(
+                        existing?.claim_count ?? 0
+                );
+
+        if (
+                claimCount >=
+                shuttlesPerNight
+        ) {
+                return {
+                        success: false,
+                        reason:
+                                "benefit_limit_reached",
+                        claimCount,
+                        limit:
+                                shuttlesPerNight,
+                };
         }
+
+        const result =
+                await env.DB.prepare(`
+                        INSERT INTO lodging_benefit_claims (
+                                provider,
+                                external_booking_id,
+                                reservation_id,
+                                benefit_date,
+                                status
+                        )
+                        VALUES (?, ?, ?, ?, 'claimed')
+                `)
+                        .bind(
+                                provider,
+                                externalBookingId,
+                                reservationId,
+                                benefitDate
+                        )
+                        .run();
+
+        return {
+                success: true,
+                claimId:
+                        result.meta.last_row_id,
+                claimCount:
+                        claimCount + 1,
+                limit:
+                        shuttlesPerNight,
+        };
 }
 
 export async function releaseLodgingBenefit(
