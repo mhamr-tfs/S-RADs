@@ -17,39 +17,7 @@ function previousDate(dateString) {
                 .slice(0, 10);
 }
 
-export function calculateBenefitDate({
-        shuttleDate,
-        arrivalDate,
-        departureDate,
-        allowCheckinDay = true,
-        allowCheckoutDay = true,
-}) {
-        if (
-                shuttleDate < arrivalDate ||
-                shuttleDate > departureDate
-        ) {
-                return null;
-        }
-
-        if (
-                shuttleDate === arrivalDate &&
-                !allowCheckinDay
-        ) {
-                return null;
-        }
-
-        if (
-                shuttleDate === departureDate
-        ) {
-                if (!allowCheckoutDay) {
-                        return null;
-                }
-
-                return previousDate(
-                        departureDate
-                );
-        }
-        function dateRange(
+function dateRange(
         startDate,
         endDate
 ) {
@@ -82,7 +50,70 @@ export function calculateBenefitDate({
         return dates;
 }
 
+export function calculateBenefitDate({
+        shuttleDate,
+        arrivalDate,
+        departureDate,
+        allowCheckinDay = true,
+        allowCheckoutDay = true,
+}) {
+        if (
+                shuttleDate < arrivalDate ||
+                shuttleDate > departureDate
+        ) {
+                return null;
+        }
+
+        if (
+                shuttleDate === arrivalDate &&
+                !allowCheckinDay
+        ) {
+                return null;
+        }
+
+        if (
+                shuttleDate === departureDate
+        ) {
+                if (!allowCheckoutDay) {
+                        return null;
+                }
+
+                return previousDate(
+                        departureDate
+                );
+        }
+
         return shuttleDate;
+}
+
+async function getActiveClaimCount(
+        env,
+        {
+                provider,
+                externalBookingId,
+                benefitDate,
+        }
+) {
+        const existing =
+                await env.DB.prepare(`
+                        SELECT
+                                COUNT(*) AS claim_count
+                        FROM lodging_benefit_claims
+                        WHERE provider = ?
+                          AND external_booking_id = ?
+                          AND benefit_date = ?
+                          AND status = 'claimed'
+                `)
+                        .bind(
+                                provider,
+                                externalBookingId,
+                                benefitDate
+                        )
+                        .first();
+
+        return Number(
+                existing?.claim_count ?? 0
+        );
 }
 
 export async function checkLodgingBenefitAvailability(
@@ -115,62 +146,20 @@ export async function checkLodgingBenefitAvailability(
                         .lodging_allow_checkout_day
                         ?.value ?? true;
 
-        const shuttlesPerNight =
+        const allowRollover =
                 settings
-                        .lodging_shuttles_per_night
-                        ?.value ?? 1;
+                        .lodging_allow_rollover
+                        ?.value ?? false;
 
-        for (
-        const candidateDate of
-        candidateBenefitDates
-) {
-        const existing =
-                await env.DB.prepare(`
-                        SELECT
-                                COUNT(*) AS claim_count
-                        FROM lodging_benefit_claims
-                        WHERE provider = ?
-                          AND external_booking_id = ?
-                          AND benefit_date = ?
-                          AND status = 'claimed'
-                `)
-                        .bind(
-                                provider,
-                                externalBookingId,
-                                candidateDate
+        const shuttlesPerNight =
+                Math.max(
+                        0,
+                        Number(
+                                settings
+                                        .lodging_shuttles_per_night
+                                        ?.value ?? 1
                         )
-                        .first();
-
-        const claimCount =
-                Number(
-                        existing?.claim_count ?? 0
                 );
-
-        if (
-                claimCount <
-                shuttlesPerNight
-        ) {
-                return {
-                        available: true,
-                        reason:
-                                "benefit_available",
-                        benefitDate:
-                                candidateDate,
-                        claimCount,
-                        limit:
-                                shuttlesPerNight,
-                };
-        }
-}
-
-return {
-        available: false,
-        reason:
-                "benefit_limit_reached",
-        benefitDate,
-        limit:
-                shuttlesPerNight,
-};
 
         if (!benefitEnabled) {
                 return {
@@ -178,6 +167,19 @@ return {
                         reason:
                                 "benefit_disabled",
                         benefitDate: null,
+                };
+        }
+
+        if (
+                shuttlesPerNight <= 0
+        ) {
+                return {
+                        available: false,
+                        reason:
+                                "benefit_limit_reached",
+                        benefitDate: null,
+                        claimCount: 0,
+                        limit: 0,
                 };
         }
 
@@ -199,50 +201,57 @@ return {
                 };
         }
 
-        const existing =
-                await env.DB.prepare(`
-                        SELECT
-                                COUNT(*) AS claim_count
-                        FROM lodging_benefit_claims
-                        WHERE provider = ?
-                          AND external_booking_id = ?
-                          AND benefit_date = ?
-                          AND status = 'claimed'
-                `)
-                        .bind(
-                                provider,
-                                externalBookingId,
+        const candidateBenefitDates =
+                allowRollover
+                        ? dateRange(
+                                arrivalDate,
                                 benefitDate
                         )
-                        .first();
+                        : [
+                                benefitDate,
+                        ];
 
-        const claimCount =
-                Number(
-                        existing?.claim_count ?? 0
-                );
-        
-
-        if (
-                claimCount >=
-                shuttlesPerNight
+        /*
+         * When rollover is enabled, consume the
+         * oldest unused entitlement first.
+         */
+        for (
+                const candidateDate
+                of candidateBenefitDates
         ) {
-                return {
-                        available: false,
-                        reason:
-                                "benefit_limit_reached",
-                        benefitDate,
-                        claimCount,
-                        limit:
-                                shuttlesPerNight,
-                };
+                const claimCount =
+                        await getActiveClaimCount(
+                                env,
+                                {
+                                        provider,
+                                        externalBookingId,
+                                        benefitDate:
+                                                candidateDate,
+                                }
+                        );
+
+                if (
+                        claimCount <
+                        shuttlesPerNight
+                ) {
+                        return {
+                                available: true,
+                                reason:
+                                        "benefit_available",
+                                benefitDate:
+                                        candidateDate,
+                                claimCount,
+                                limit:
+                                        shuttlesPerNight,
+                        };
+                }
         }
 
         return {
-                available: true,
+                available: false,
                 reason:
-                        "benefit_available",
+                        "benefit_limit_reached",
                 benefitDate,
-                claimCount,
                 limit:
                         shuttlesPerNight,
         };
@@ -262,37 +271,96 @@ export async function claimLodgingBenefit(
                         env
                 );
 
-        const shuttlesPerNight =
+        const benefitEnabled =
                 settings
-                        .lodging_shuttles_per_night
-                        ?.value ?? 1;
+                        .lodging_benefit_enabled
+                        ?.value ?? true;
 
-        const existing =
+        const shuttlesPerNight =
+                Math.max(
+                        0,
+                        Number(
+                                settings
+                                        .lodging_shuttles_per_night
+                                        ?.value ?? 1
+                        )
+                );
+
+        if (
+                !benefitEnabled ||
+                shuttlesPerNight <= 0
+        ) {
+                return {
+                        success: false,
+                        reason:
+                                benefitEnabled
+                                        ? "benefit_limit_reached"
+                                        : "benefit_disabled",
+                        limit:
+                                shuttlesPerNight,
+                };
+        }
+
+        /*
+         * The limit check and INSERT happen in one
+         * SQL statement. This prevents two nearly
+         * simultaneous requests from both seeing
+         * an available slot and exceeding the
+         * configured per-night limit.
+         */
+        const result =
                 await env.DB.prepare(`
+                        INSERT INTO lodging_benefit_claims (
+                                provider,
+                                external_booking_id,
+                                reservation_id,
+                                benefit_date,
+                                status
+                        )
                         SELECT
-                                COUNT(*) AS claim_count
-                        FROM lodging_benefit_claims
-                        WHERE provider = ?
-                          AND external_booking_id = ?
-                          AND benefit_date = ?
-                          AND status = 'claimed'
+                                ?,
+                                ?,
+                                ?,
+                                ?,
+                                'claimed'
+                        WHERE (
+                                SELECT COUNT(*)
+                                FROM lodging_benefit_claims
+                                WHERE provider = ?
+                                  AND external_booking_id = ?
+                                  AND benefit_date = ?
+                                  AND status = 'claimed'
+                        ) < ?
                 `)
                         .bind(
                                 provider,
                                 externalBookingId,
-                                benefitDate
+                                reservationId,
+                                benefitDate,
+
+                                provider,
+                                externalBookingId,
+                                benefitDate,
+                                shuttlesPerNight
                         )
-                        .first();
+                        .run();
+
+        const inserted =
+                Number(
+                        result.meta?.changes ?? 0
+                ) > 0;
 
         const claimCount =
-                Number(
-                        existing?.claim_count ?? 0
+                await getActiveClaimCount(
+                        env,
+                        {
+                                provider,
+                                externalBookingId,
+                                benefitDate,
+                        }
                 );
 
-        if (
-                claimCount >=
-                shuttlesPerNight
-        ) {
+        if (!inserted) {
                 return {
                         success: false,
                         reason:
@@ -303,31 +371,11 @@ export async function claimLodgingBenefit(
                 };
         }
 
-        const result =
-                await env.DB.prepare(`
-                        INSERT INTO lodging_benefit_claims (
-                                provider,
-                                external_booking_id,
-                                reservation_id,
-                                benefit_date,
-                                status
-                        )
-                        VALUES (?, ?, ?, ?, 'claimed')
-                `)
-                        .bind(
-                                provider,
-                                externalBookingId,
-                                reservationId,
-                                benefitDate
-                        )
-                        .run();
-
         return {
                 success: true,
                 claimId:
                         result.meta.last_row_id,
-                claimCount:
-                        claimCount + 1,
+                claimCount,
                 limit:
                         shuttlesPerNight,
         };
@@ -342,21 +390,26 @@ export async function releaseLodgingBenefit(
         const now =
                 new Date().toISOString();
 
-        await env.DB.prepare(`
-                UPDATE lodging_benefit_claims
-                SET
-                        status = 'released',
-                        released_at = ?
-                WHERE id = ?
-                  AND status = 'claimed'
-        `)
-                .bind(
-                        now,
-                        claimId
-                )
-                .run();
+        const result =
+                await env.DB.prepare(`
+                        UPDATE lodging_benefit_claims
+                        SET
+                                status = 'released',
+                                released_at = ?
+                        WHERE id = ?
+                          AND status = 'claimed'
+                `)
+                        .bind(
+                                now,
+                                claimId
+                        )
+                        .run();
 
         return {
                 success: true,
+                released:
+                        Number(
+                                result.meta?.changes ?? 0
+                        ) > 0,
         };
 }
